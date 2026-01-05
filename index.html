@@ -3,158 +3,190 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>術前休薬確認ツール Ver12.0</title>
+    <title>術前休薬確認ツール Ver19.0</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        body { font-family: "Helvetica Neue", Arial, sans-serif; background-color: #f4f6f9; color: #333; }
-        .container-main { max-width: 1300px; margin: 15px auto; background: white; padding: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); border-radius: 4px; position: relative; }
+        body { font-family: "Helvetica Neue", Arial, sans-serif; background-color: #f4f6f9; color: #333; margin: 0; padding: 20px; }
+        * { box-sizing: border-box; }
         
-        /* --- タブ設定 --- */
-        .sticky-tabs {
-            position: -webkit-sticky; position: sticky; top: 0; z-index: 1000;
-            background-color: #f4f6f9; padding-top: 10px; margin-bottom: 20px; border-bottom: 1px solid #dee2e6;
-        }
-        .nav-tabs { border-bottom: none; }
-        .nav-tabs .nav-link { background-color: #e9ecef; border: 1px solid #dee2e6; margin-right: 4px; color: #555; font-weight: 500; transition: all 0.2s; }
-        .nav-tabs .nav-link:hover { background-color: #dde0e3; border-color: #ccc; }
-        .nav-tabs .nav-link.active { background-color: #fff; border-color: #dee2e6 #dee2e6 #fff; color: #0d6efd; font-weight: bold; box-shadow: 0 -2px 5px rgba(0,0,0,0.05); }
-
-        /* --- トップへ戻るボタン --- */
-        #backToTop {
-            display: none; position: fixed; bottom: 30px; right: 30px; z-index: 2000;
-            font-size: 18px; border: none; outline: none; background-color: #0d6efd; color: white;
-            cursor: pointer; padding: 10px 15px; border-radius: 50%; box-shadow: 0 2px 5px rgba(0,0,0,0.3); opacity: 0.8; transition: opacity 0.3s;
-        }
-        #backToTop:hover { opacity: 1; background-color: #0b5ed7; }
-
-        /* --- テーブル設定 --- */
+        /* ユーティリティ */
+        .d-none { display: none !important; }
+        .d-flex { display: flex; }
+        .gap-2 { gap: 0.5rem; }
+        .w-100 { width: 100%; }
+        .w-50 { width: 50%; }
+        .mb-2 { margin-bottom: 0.5rem; }
+        .mb-3 { margin-bottom: 1rem; }
+        .mt-1 { margin-top: 0.25rem; }
+        .mt-2 { margin-top: 0.5rem; }
+        .fw-bold { font-weight: bold; }
+        .small { font-size: 0.875rem; }
+        .text-center { text-align: center; }
+        .text-end { text-align: right; }
+        .text-muted { color: #6c757d; }
+        .text-primary { color: #0d6efd; }
+        .text-danger { color: #dc3545; }
+        .pt-2 { padding-top: 0.5rem; }
+        .py-4 { padding-top: 1.5rem; padding-bottom: 1.5rem; }
+        .border-top { border-top: 1px solid #dee2e6; }
+        .border-bottom { border-bottom: 1px solid #dee2e6; }
+        .container-main { max-width: 1300px; margin: 0 auto; background: white; padding: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); border-radius: 4px; position: relative; }
+        .btn { display: inline-block; font-weight: 400; text-align: center; vertical-align: middle; cursor: pointer; border: 1px solid transparent; padding: 0.375rem 0.75rem; font-size: 1rem; border-radius: 0.25rem; transition: all 0.15s; }
+        .btn-sm { padding: 0.25rem 0.5rem; font-size: 0.875rem; }
+        .btn-primary { color: #fff; background-color: #0d6efd; border-color: #0d6efd; }
+        .btn-primary:hover { background-color: #0b5ed7; }
+        .btn-secondary { color: #fff; background-color: #6c757d; border-color: #6c757d; }
+        .btn-secondary:hover { background-color: #5c636a; }
+        .btn-success { color: #fff; background-color: #198754; border-color: #198754; }
+        .btn-success:hover { background-color: #157347; }
+        .btn-outline-secondary { color: #6c757d; border-color: #6c757d; background: white; }
+        .btn-outline-secondary:hover { color: #fff; background-color: #6c757d; }
+        .form-control { display: block; width: 100%; padding: 0.375rem 0.75rem; font-size: 1rem; border: 1px solid #ced4da; border-radius: 0.25rem; }
+        textarea.form-control { resize: vertical; }
+        input[type="date"] { position: relative; padding-right: 5px; cursor: pointer; }
+        input[type="date"]::-webkit-calendar-picker-indicator { width: 24px; height: 24px; cursor: pointer; filter: invert(34%) sepia(9%) saturate(1908%) hue-rotate(182deg) brightness(93%) contrast(88%); }
+        .alert { position: relative; padding: 1rem 1rem; margin-bottom: 1rem; border: 1px solid transparent; border-radius: 0.25rem; }
+        .alert-warning { color: #664d03; background-color: #fff3cd; border-color: #ffecb5; }
+        .row { display: flex; flex-wrap: wrap; margin-right: -0.75rem; margin-left: -0.75rem; }
+        .col-auto { flex: 0 0 auto; width: auto; padding: 0 0.75rem; }
+        .col-md-3 { flex: 0 0 auto; width: 25%; padding: 0 0.75rem; }
+        .col-md-4 { flex: 0 0 auto; width: 33.3333%; padding: 0 0.75rem; }
+        .col-md-5 { flex: 0 0 auto; width: 41.6667%; padding: 0 0.75rem; }
+        .col-md-6 { flex: 0 0 auto; width: 50%; padding: 0 0.75rem; }
+        .sticky-tabs { position: -webkit-sticky; position: sticky; top: 0; z-index: 900; background-color: #f4f6f9; padding-top: 10px; margin-bottom: 20px; border-bottom: 1px solid #dee2e6; }
+        .nav-tabs { display: flex; list-style: none; padding-left: 0; margin-bottom: 0; border-bottom: 1px solid #dee2e6; }
+        .nav-item { margin-bottom: -1px; }
+        .nav-link { display: block; padding: 0.5rem 1rem; text-decoration: none; background-color: #e9ecef; border: 1px solid #dee2e6; margin-right: 4px; color: #555; font-weight: 500; border-top-left-radius: 0.25rem; border-top-right-radius: 0.25rem; cursor: pointer; }
+        .nav-link:hover { background-color: #dde0e3; }
+        .nav-link.active { color: #0d6efd; background-color: #fff; border-color: #dee2e6 #dee2e6 #fff; font-weight: bold; }
+        .tab-pane { display: none; }
+        .tab-pane.show { display: block; }
+        .table { width: 100%; margin-bottom: 1rem; vertical-align: top; border-color: #dee2e6; border-collapse: collapse; }
+        .table-bordered th, .table-bordered td { border: 1px solid #dee2e6; }
         .table-custom { font-size: 15px; }
-        .table-custom th { background-color: #2c3e50 !important; color: #ffffff !important; vertical-align: middle; text-align: center; font-weight: 600; padding: 8px; white-space: nowrap; }
-        .table-custom td { vertical-align: middle; padding: 6px 8px; line-height: 1.3; }
-
-        /* --- ハイライト設定 --- */
+        .table-custom th { background-color: #2c3e50 !important; color: #ffffff !important; text-align: center; font-weight: 600; padding: 8px; white-space: nowrap; }
+        .table-custom td { padding: 6px 8px; line-height: 1.3; vertical-align: middle; }
+        .table-fixed { table-layout: fixed; }
+        .cell-nowrap { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .cell-wrap { word-wrap: break-word; overflow-wrap: break-word; }
+        
+        /* ハイライト設定 */
         tr.row-none td { background-color: #ffffff !important; color: #333; }
         tr.row-alert td { background-color: #ffe6e6 !important; color: #b00; font-weight: bold; }
         tr.row-gray td { background-color: #f2f2f2 !important; color: #666; }
-
-        /* --- 検索テーブル --- */
-        .table-fixed { table-layout: fixed; width: 100%; }
-        .cell-nowrap { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .cell-wrap { word-wrap: break-word; overflow-wrap: break-word; }
-
-        /* --- 参考文献 --- */
+        
         .citation-list { padding-left: 0; list-style: none; margin-bottom: 0; }
         .citation-item { padding-left: 1.5em; text-indent: -1.5em; margin-bottom: 2px; font-size: 0.85rem; }
-
-        /* --- 印刷設定 --- */
-        @media print {
-            body { background: white; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
-            .no-print, .nav-tabs, .btn, .form-control, .alert, .modal-backdrop, #backToTop, .sticky-tabs { display: none !important; }
-            .container-main { box-shadow: none; margin: 0; padding: 0; max-width: 100% !important; width: 100% !important; }
-            .print-header { display: flex !important; justify-content: space-between; align-items: flex-end; margin-bottom: 10px; border-bottom: 2px solid #000; padding-bottom: 5px; }
-            
-            .tab-pane { display: none !important; }
-            .tab-pane.active { display: block !important; opacity: 1 !important; visibility: visible !important; }
-
-            tr.row-alert td { background-color: #ffe6e6 !important; }
-            tr.row-gray td { background-color: #f2f2f2 !important; }
-
-            .modal { position: static !important; overflow: visible !important; }
-            .modal-dialog { margin: 0 !important; max-width: 100% !important; }
-            .modal-content { border: none !important; box-shadow: none !important; }
-            .modal-header, .modal-footer { display: none !important; }
-            .modal-body { padding: 0 !important; }
-            
-            #printCitationList { column-count: 2; column-gap: 20px; font-size: 9pt; margin-top: 10px; }
-            @page { margin: 10mm; size: auto; }
-        }
-        .print-header { display: none; }
-        
-        /* プレビュー */
-        #previewContent { font-family: "Helvetica Neue", Arial, sans-serif; background: white; padding: 20px; }
-        #previewContent .table-custom { font-size: 14px; }
-        #previewContent th { background-color: #2c3e50 !important; color: white !important; padding: 6px; }
-        #previewContent td { padding: 6px; border: 1px solid #999; }
-        #previewContent tr.row-alert td { background-color: #ffe6e6 !important; }
-        #previewContent tr.row-gray td { background-color: #f2f2f2 !important; }
-
-        /* ==========================================================================
-           【タブ4】抗凝固・抗血小板薬プロトコル 専用スタイル
-           ========================================================================== */
-        #ac-wrapper { font-family: "Helvetica Neue", Arial, sans-serif; color: #333; }
+        #backToTop { display: none; position: fixed; bottom: 30px; right: 30px; z-index: 2000; font-size: 18px; border: none; background-color: #0d6efd; color: white; cursor: pointer; padding: 10px 15px; border-radius: 50%; box-shadow: 0 2px 5px rgba(0,0,0,0.3); opacity: 0.8; transition: opacity 0.3s; }
+        #backToTop:hover { opacity: 1; background-color: #0b5ed7; }
+        .modal { display: none; position: fixed; z-index: 9999; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.4); }
+        .modal-dialog { margin: 1.75rem auto; max-width: 90%; width: 210mm; }
+        .modal-content { position: relative; display: flex; flex-direction: column; width: 100%; background-color: #fff; border-radius: 0.3rem; }
+        .modal-header { display: flex; align-items: center; justify-content: space-between; padding: 1rem; border-bottom: 1px solid #dee2e6; }
+        .modal-body { position: relative; flex: 1 1 auto; padding: 1rem; background-color: #6c757d; }
+        .modal-footer { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; padding: 0.75rem; border-top: 1px solid #dee2e6; }
+        .btn-close { padding: 0.5rem; background: transparent; border: 0; font-size: 1.5rem; font-weight: 700; cursor: pointer; }
         #ac-wrapper h1 { text-align: center; color: #2c3e50; border-bottom: 3px solid #34495e; padding-bottom: 15px; margin-bottom: 30px; font-size: 24px; }
         #ac-wrapper .date-section { background-color: #e3f2fd; border: 1px solid #bbdefb; padding: 15px; border-radius: 8px; margin-bottom: 20px; text-align: center; }
-        #ac-wrapper .date-label { font-weight: bold; font-size: 1.1rem; margin-right: 15px; color: #0d47a1; }
-        #ac-wrapper input[type="date"] { padding: 8px 12px; font-size: 1.1rem; border: 1px solid #ccc; border-radius: 4px; }
-        
-        #ac-wrapper .selection-area { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 30px; }
-        #ac-wrapper .step-box { background: #f9f9f9; padding: 20px; border-radius: 8px; border: 1px solid #ddd; }
+        #ac-wrapper .selection-area { display: flex; gap: 30px; margin-bottom: 30px; }
+        #ac-wrapper .step-box { flex: 1; background: #f9f9f9; padding: 20px; border-radius: 8px; border: 1px solid #ddd; height: 100%; }
         #ac-wrapper h2 { font-size: 1.1rem; color: #2980b9; margin-top: 0; border-left: 5px solid #2980b9; padding-left: 10px; }
-        
-        #ac-wrapper .btn-group-custom { display: flex; flex-direction: column; gap: 10px; }
-        #ac-wrapper button.custom-btn { padding: 15px; font-size: 1rem; text-align: left; background-color: #fff; border: 1px solid #ccc; border-radius: 4px; cursor: pointer; transition: all 0.2s; width: 100%; color: #333; }
+        #ac-wrapper button.custom-btn { padding: 12px; font-size: 0.95rem; text-align: left; background-color: #fff; border: 1px solid #ccc; border-radius: 4px; cursor: pointer; width: 100%; margin-bottom: 8px; color: #333; }
         #ac-wrapper button.custom-btn:hover { background-color: #eaf2f8; border-color: #3498db; }
-        #ac-wrapper button.custom-btn.selected { background-color: #3498db; color: white; border-color: #2980b9; font-weight: bold; box-shadow: 0 0 10px rgba(52, 152, 219, 0.5); }
-
-        #ac-wrapper #ac-result-area { display: none; border-top: 2px dashed #bdc3c7; padding-top: 30px; margin-bottom: 50px; }
-        #ac-wrapper .comparison-container { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-        #ac-wrapper .risk-col { padding: 20px; border-radius: 6px; border: 2px solid transparent; display: flex; flex-direction: column; }
+        #ac-wrapper button.custom-btn.selected { background-color: #3498db; color: white; border-color: #2980b9; font-weight: bold; }
+        #ac-result-area { display: none; border-top: 2px dashed #bdc3c7; padding-top: 30px; margin-bottom: 50px; }
+        #ac-wrapper .comparison-container { display: flex; gap: 20px; }
+        #ac-wrapper .risk-col { flex: 1; padding: 20px; border-radius: 6px; border: 2px solid transparent; display: flex; flex-direction: column; }
         #ac-wrapper .risk-high { background-color: #fff5f5; border-color: #e74c3c; }
         #ac-wrapper .risk-low { background-color: #f0f9ff; border-color: #3498db; }
         #ac-wrapper .risk-title { font-weight: bold; font-size: 1.2rem; margin-bottom: 10px; text-align: center; padding: 5px; border-radius: 4px; color: white; }
         #ac-wrapper .risk-high .risk-title { background-color: #c0392b; }
         #ac-wrapper .risk-low .risk-title { background-color: #2980b9; }
-        
         #ac-wrapper .definition-box { font-size: 0.85rem; background: #fff; padding: 10px; border: 1px solid #ddd; margin-bottom: 15px; color: #555; }
         #ac-wrapper .action-box { font-size: 1.1rem; font-weight: bold; padding: 15px; background: #fff; border-radius: 4px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); flex-grow: 1; }
-        #ac-wrapper .bridge-info { margin-top: 10px; font-size: 0.95rem; color: #d35400; }
         #ac-wrapper .schedule-info { margin-top: 15px; padding-top: 15px; border-top: 1px dotted #ccc; font-size: 1.2rem; color: #c0392b; font-weight: bold; text-align: center; }
-        
         #ac-wrapper .footer-info { margin-top: 20px; padding: 15px; background-color: #fff8e1; border: 1px solid #ffe082; border-radius: 5px; }
         #ac-wrapper .footer-title { font-weight: bold; color: #f57c00; margin-bottom: 5px; }
-
         #ac-wrapper details { margin-top: 40px; border: 1px solid #ccc; background: #fff; }
         #ac-wrapper summary { background: #eee; padding: 15px; cursor: pointer; font-weight: bold; font-size: 1.1rem; }
         #ac-wrapper .table-container { overflow-x: auto; padding: 10px; }
         #ac-wrapper table.ref-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; line-height: 1.5; }
         #ac-wrapper table.ref-table th, #ac-wrapper table.ref-table td { border: 1px solid #888; padding: 6px 5px; vertical-align: top; }
-        
         #ac-wrapper .col-drug { width: 10%; }
         #ac-wrapper .col-risk { width: 26%; }
         #ac-wrapper .col-surg-sm { width: 10%; }
         #ac-wrapper .col-surg-lg { width: 22%; }
+        #ac-wrapper .bg-header { background-color: #343a40; color: #fff; text-align: center; }
         #ac-wrapper .bg-warfarin { background-color: #fff3cd; }
         #ac-wrapper .bg-doac { background-color: #d1e7dd; }
         #ac-wrapper .bg-platelet { background-color: #fff9c4; }
-        #ac-wrapper .bg-header { background-color: #343a40; color: #fff; text-align: center; }
         #ac-wrapper .txt-center { text-align: center; }
         #ac-wrapper .txt-bold { font-weight: bold; }
         #ac-wrapper .no-wrap { white-space: nowrap; }
-        #ac-wrapper .risk-list { font-size: 0.75rem; color: #444; margin-top: 5px; text-align: left; }
-        #ac-wrapper .hanging-item { padding-left: 1em; text-indent: -1em; margin-bottom: 2px; }
+        #ac-wrapper .risk-list { font-size: 100%; color: #333; margin-top: 5px; text-align: left; line-height: 1.4; }
+        #ac-wrapper .hanging-item { padding-left: 1em; text-indent: -1em; margin-bottom: 4px; }
         #ac-wrapper .heparin-note { margin-top: 8px; padding-top:5px; border-top:1px dashed #999; color: #c0392b; font-size:0.8rem;}
         #ac-wrapper .drug-list { font-size: 0.85rem; font-weight: normal; margin-top: 5px; display: block; }
         #ac-wrapper .drug-item { display: block; }
         #ac-wrapper .bottom-notes { margin-top: 20px; padding: 15px; border-top: 2px solid #333; font-size: 0.85rem; }
         #ac-wrapper .note-block { margin-bottom: 10px; }
         #ac-wrapper .note-title { font-weight: bold; text-decoration: underline; margin-bottom: 3px;}
-        
-        /* タブ4の印刷制御 */
+
+        /* メニューバーCSS */
+        #menu-toggle-btn { position: fixed; top: 15px; right: 20px; z-index: 9999; width: 50px; height: 50px; background-color: #333; border: 2px solid #fff; border-radius: 8px; cursor: pointer; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 6px; box-shadow: 0 4px 8px rgba(0,0,0,0.3); transition: all 0.3s; }
+        #menu-toggle-btn:hover { background-color: #555; transform: scale(1.05); }
+        .bar { width: 28px; height: 3px; background-color: white; border-radius: 2px; }
+        #menu-content { display: none; position: fixed; top: 75px; right: 20px; width: 260px; background-color: #333; border: 1px solid #555; border-radius: 8px; padding: 15px; z-index: 9998; box-shadow: 0 10px 25px rgba(0,0,0,0.5); flex-direction: column; font-family: "Helvetica Neue", Arial, sans-serif; text-align: left; }
+        #menu-content.active { display: flex; animation: fadeIn 0.2s ease-out; }
+        .menu-link { display: block; color: white !important; text-decoration: none; padding: 12px 15px; margin-bottom: 6px; border-radius: 4px; background-color: #444; font-size: 16px; font-weight: bold; transition: background 0.2s; }
+        .menu-link:hover { background-color: #0d6efd; color: white; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+
         @media print {
-            #ac-wrapper .selection-area { display: none; }
-            #ac-wrapper .date-section { display: none; }
+            .no-print, .nav-tabs, .btn, .form-control, .alert, .modal, #backToTop, .sticky-tabs, #custom-hamburger-menu { display: none !important; }
+            .container-main { box-shadow: none; margin: 0; padding: 0; width: 100%; max-width: 100%; }
+            .print-header { display: flex !important; justify-content: space-between; align-items: flex-end; margin-bottom: 10px; border-bottom: 2px solid #000; padding-bottom: 5px; }
+            .tab-pane { display: none !important; }
+            .tab-pane.show { display: block !important; }
+            tr.row-alert td { background-color: #ffe6e6 !important; }
+            tr.row-gray td { background-color: #f2f2f2 !important; }
+            #ac-wrapper .risk-high { background-color: #fff5f5 !important; }
+            #ac-wrapper .risk-low { background-color: #f0f9ff !important; }
+            .modal { position: static; display: block; background: none; height: auto; overflow: visible; }
+            .modal-dialog { max-width: 100%; width: 100%; margin: 0; }
+            .modal-content { border: none; }
+            .modal-header, .modal-footer { display: none; }
+            .modal-body { padding: 0; background: white; }
+            #ac-wrapper .selection-area, #ac-wrapper .date-section { display: none; }
             #ac-wrapper details { display: block !important; }
             #ac-wrapper summary { display: none; }
+            #printCitationList { column-count: 2; column-gap: 20px; font-size: 9pt; margin-top: 10px; }
+            @page { margin: 10mm; size: auto; }
         }
+        .print-header { display: none; }
     </style>
 </head>
 <body>
 
+<div id="custom-hamburger-menu" class="no-print">
+    <button id="menu-toggle-btn" onclick="toggleMenu()" title="メニューを開く">
+        <span class="bar"></span><span class="bar"></span><span class="bar"></span>
+    </button>
+    <nav id="menu-content">
+        <div style="color:#aaa; font-size:12px; margin-bottom:10px; text-align:center; border-bottom:1px solid #555; padding-bottom:5px;">業務支援ツール統合メニュー</div>
+        <a href="index.html" class="menu-link">🏠 メニュー画面へ</a>
+        <hr style="margin: 8px 0; border-color: #555;">
+        <a href="休薬確認ツール.html" class="menu-link">💊 休薬確認ツール</a>
+        <a href="配合変化ツール.html" class="menu-link">💉 配合変化ツール</a>
+        <a href="小児投与量確認ツール.html" class="menu-link">👶 小児用量監査</a>
+        <button onclick="toggleMenu()" style="width:100%; margin-top:10px; background:transparent; border:1px solid #777; color:#ccc; padding:5px; border-radius:4px; cursor:pointer;">閉じる</button>
+    </nav>
+</div>
 <button id="backToTop" onclick="window.scrollTo({top: 0, behavior: 'smooth'});">▲</button>
 
 <div class="container-main">
     <div class="d-flex justify-content-between align-items-center no-print mb-3">
-        <h3 class="text-dark fw-bold m-0">🏥 術前休薬確認ツール Ver12.0</h3>
+        <h3 class="fw-bold m-0">🏥 術前休薬確認ツール Ver19.0</h3>
         <button class="btn btn-secondary btn-sm" onclick="window.location.reload()">リセット</button>
     </div>
 
@@ -163,35 +195,30 @@
     </div>
 
     <div class="sticky-tabs no-print">
-        <ul class="nav nav-tabs" id="myTab" role="tablist">
-            <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#check-tab">① 判定・リスト作成</button></li>
-            <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#schedule-tab">② 休薬日確認</button></li>
-            <li class="nav-item"><button class="nav-link" id="master-tab-btn" data-bs-toggle="tab" data-bs-target="#master-tab">③ 薬剤一覧検索</button></li>
-            <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#anticoagulant-tab">④ 抗凝固・抗血小板薬プロトコル</button></li>
+        <ul class="nav nav-tabs">
+            <li class="nav-item"><a class="nav-link active" onclick="switchTab('check-tab')">① 判定・リスト作成</a></li>
+            <li class="nav-item"><a class="nav-link" onclick="switchTab('schedule-tab')">② 休薬日確認</a></li>
+            <li class="nav-item"><a class="nav-link" id="master-tab-btn" onclick="switchTab('master-tab')">③ 薬剤一覧検索</a></li>
+            <li class="nav-item"><a class="nav-link" onclick="switchTab('anticoagulant-tab')">④ 抗凝固・抗血小板薬プロトコル</a></li>
         </ul>
     </div>
 
-    <div class="tab-content" id="myTabContent">
-        
-        <div class="tab-pane fade show active" id="check-tab">
+    <div class="tab-content">
+        <div id="check-tab" class="tab-pane show active">
             <div class="row g-2 mb-3 no-print">
                 <div class="col-md-5">
                     <textarea id="rawInput" class="form-control" rows="4" placeholder="電子カルテ等の薬剤リストをここに貼り付けてください"></textarea>
                 </div>
                 <div class="col-md-4">
-                    <label class="form-label small fw-bold">手術予定日</label>
+                    <label class="small fw-bold">手術予定日</label>
                     <input type="date" id="surgeryDate" class="form-control" onchange="processData()">
-                    <div class="form-text text-primary small mt-1">
-                        ※手術日未入力でも判定は可能です。入力すると推奨休薬期間が計算・表示されます。
-                    </div>
+                    <div class="text-primary small mt-1">※手術日未入力でも判定可能。入力で期間を表示。</div>
                 </div>
-                <div class="col-md-3 d-flex gap-2 align-items-center">
-                    <div class="d-grid gap-2 w-100">
-                        <button class="btn btn-primary fw-bold" onclick="processData()">判定実行</button>
-                        <div class="d-flex gap-2">
-                            <button class="btn btn-outline-secondary w-50" onclick="showPreview()">プレビュー</button>
-                            <button class="btn btn-success w-50" onclick="window.print()">印刷</button>
-                        </div>
+                <div class="col-md-3">
+                    <button class="btn btn-primary w-100 mb-2 fw-bold" onclick="processData()">判定実行</button>
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-outline-secondary w-50" onclick="showPreview()">プレビュー</button>
+                        <button class="btn btn-success w-50" onclick="window.print()">印刷</button>
                     </div>
                 </div>
             </div>
@@ -200,7 +227,6 @@
                 <div style="font-size: 16pt; font-weight: bold;">薬剤休薬確認リスト</div>
                 <div id="printDateDisplay" style="font-size: 12pt; font-weight: bold;">手術予定日：未設定</div>
             </div>
-
             <div class="d-none d-print-block small border-bottom mb-2 pb-1">
                 ※本表は汎用薬を抜粋したものです。これ以外にも留意すべき薬剤があります。あくまでも一目安としてご利用ください。
             </div>
@@ -231,25 +257,25 @@
             </div>
         </div>
 
-        <div class="tab-pane fade" id="schedule-tab">
+        <div id="schedule-tab" class="tab-pane">
             <div class="print-header">
                 <div style="font-size: 16pt; font-weight: bold;">休薬日確認カレンダー</div>
                 <div id="printScheduleDateDisplay" style="font-size: 12pt; font-weight: bold;">手術予定日：未設定</div>
             </div>
             <div class="row align-items-center mb-3 no-print">
-                <div class="col-auto"><label class="fw-bold fs-5">手術予定日：</label></div>
-                <div class="col-auto"><input type="date" id="scheduleDateInput" class="form-control form-control-lg" onchange="calcScheduleTab()"></div>
+                <div class="col-auto"><label class="fw-bold">手術予定日：</label></div>
+                <div class="col-auto"><input type="date" id="scheduleDateInput" class="form-control" onchange="calcScheduleTab()"></div>
                 <div class="col-auto"><button class="btn btn-success" onclick="window.print()">このページを印刷</button></div>
             </div>
             <div id="scheduleResultArea" class="table-custom"></div>
         </div>
 
-        <div class="tab-pane fade" id="master-tab">
+        <div id="master-tab" class="tab-pane">
             <div class="mb-2">
                 <input type="text" id="masterSearch" class="form-control" placeholder="薬剤名を入力（スペース区切りで複数検索可能）" onkeyup="filterMasterTable()">
             </div>
             <div style="height: 650px; overflow-y: auto;">
-                <table class="table table-sm table-hover table-custom table-fixed sticky-top">
+                <table class="table table-custom table-fixed">
                     <thead style="position: sticky; top: 0; z-index: 10;">
                         <tr>
                             <th style="width: 12%;">分類</th>
@@ -264,16 +290,14 @@
             </div>
         </div>
 
-        <div class="tab-pane fade" id="anticoagulant-tab">
+        <div id="anticoagulant-tab" class="tab-pane">
             <div id="ac-wrapper">
                 <h1>手術時 抗凝固・抗血小板薬 休薬・置換プロトコル</h1>
-
                 <div class="date-section no-print">
-                    <label class="date-label" for="ac-surgery-date">📅 手術予定日：</label>
+                    <label class="date-label">📅 手術予定日：</label>
                     <input type="date" id="ac-surgery-date" onchange="updateACDisplay()">
                     <span style="font-size:0.9rem; margin-left:10px; color:#666;">（入力すると休薬開始日を自動計算します）</span>
                 </div>
-
                 <div class="selection-area no-print">
                     <div class="step-box">
                         <h2>1. 薬剤を選択</h2>
@@ -285,7 +309,6 @@
                             <button class="custom-btn" onclick="setACDrug('platelet_cilo', this)">抗血小板薬：シロスタゾール</button>
                         </div>
                     </div>
-
                     <div class="step-box">
                         <h2>2. 手術・処置を選択</h2>
                         <div class="btn-group-custom" id="surgery-buttons">
@@ -296,10 +319,8 @@
                         </div>
                     </div>
                 </div>
-
-                <div id="ac-result-area">
-                    <h3 style="text-align:center; margin-bottom:20px; font-size:1.4rem;">推奨される対応（病態リスク別）</h3>
-                    
+                <div id="ac-result-area" style="display:none;">
+                    <h3 style="text-align:center; margin-bottom:20px;">推奨される対応（病態リスク別）</h3>
                     <div class="comparison-container">
                         <div class="risk-col risk-high">
                             <div class="risk-title">高リスク病態</div>
@@ -309,7 +330,6 @@
                                 <div id="high-schedule" class="schedule-info" style="display:none;"></div>
                             </div>
                         </div>
-
                         <div class="risk-col risk-low">
                             <div class="risk-title">低リスク病態</div>
                             <div class="definition-box" id="low-risk-def"></div>
@@ -319,14 +339,17 @@
                             </div>
                         </div>
                     </div>
-
                     <div class="footer-info" id="footer-note" style="display:none;">
                         <div class="footer-title">★ 再開・ヘパリン置換に関する注意</div>
                         <div id="footer-text"></div>
                     </div>
                 </div>
+                
+                <div class="text-end no-print mb-3 mt-3">
+                    <button class="btn btn-success" onclick="window.print()">このページを印刷</button>
+                </div>
 
-                <details open>
+                <details open class="no-print">
                     <summary>（参考）休薬・置換プロトコル全図表</summary>
                     <div class="table-container">
                         <table class="ref-table">
@@ -348,19 +371,18 @@
     </div>
 </div>
 
-<div class="modal fade" id="previewModal" tabindex="-1">
-    <div class="modal-dialog modal-xl">
+<div id="previewModal" class="modal">
+    <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">印刷プレビュー</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                <h5>印刷プレビュー</h5>
+                <button type="button" class="btn-close" onclick="closeModal()">×</button>
             </div>
-            <div class="modal-body bg-secondary">
-                <div id="previewContent" class="shadow-sm mx-auto" style="width: 210mm; min-height: 297mm; padding: 15mm;">
-                    </div>
+            <div class="modal-body" style="background:#ccc; overflow:auto; max-height:80vh;">
+                <div id="previewContent" style="background:white; margin:20px auto; padding:20px; box-shadow:0 0 10px rgba(0,0,0,0.3); width:210mm; min-height:297mm;"></div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">閉じる</button>
+                <button type="button" class="btn btn-secondary" onclick="closeModal()">閉じる</button>
                 <button type="button" class="btn btn-primary" onclick="printFromPreview()">このまま印刷</button>
             </div>
         </div>
@@ -368,9 +390,58 @@
 </div>
 
 <script>
-// ==========================================
-// 1. データ定義 (VBAでこの変数が置換されます)
-// ==========================================
+function switchTab(tabId) {
+    document.querySelectorAll('.nav-link').forEach(el => el.classList.remove('active'));
+    document.querySelectorAll('.nav-link').forEach(el => {
+        if(el.getAttribute('onclick').includes(tabId)) el.classList.add('active');
+    });
+    document.querySelectorAll('.tab-pane').forEach(el => {
+        el.classList.remove('show', 'active');
+        el.style.display = 'none';
+    });
+    const target = document.getElementById(tabId);
+    if(target) {
+        target.classList.add('show', 'active');
+        target.style.display = 'block';
+    }
+    if(tabId === 'master-tab') filterMasterTable();
+}
+function toggleMenu() {
+    var menu = document.getElementById('menu-content');
+    menu.classList.toggle('active');
+}
+function showPreview() {
+    const activeTab = document.querySelector('.tab-pane.active').id;
+    let content = "";
+    if(activeTab === "check-tab") {
+        const header = document.querySelector("#check-tab .print-header").outerHTML;
+        const table = document.getElementById("resultTable").outerHTML;
+        const refs = document.getElementById("printCitationList").outerHTML;
+        content = `${header}${table}<div class="mt-4 pt-2 border-top"><small class="fw-bold">【引用・根拠】</small>${refs}</div>`;
+    } else if(activeTab === "schedule-tab") {
+        content = document.querySelector("#schedule-tab .print-header").outerHTML + document.getElementById("scheduleResultArea").innerHTML;
+    } else {
+        content = "<p class='p-3'>この画面は「印刷」ボタンから直接印刷してください。</p>";
+    }
+    document.getElementById("previewContent").innerHTML = content;
+    document.getElementById("previewModal").style.display = "block";
+}
+function closeModal() {
+    document.getElementById("previewModal").style.display = "none";
+}
+function printFromPreview() {
+    closeModal();
+    setTimeout(() => { window.print(); }, 300);
+}
+window.onscroll = function() {
+    const btn = document.getElementById("backToTop");
+    if (document.body.scrollTop > 200 || document.documentElement.scrollTop > 200) {
+        btn.style.display = "block";
+    } else {
+        btn.style.display = "none";
+    }
+};
+
 const citations = {
     "1": "糖尿病治療におけるSGLT2阻害薬の適正使用に関する Recommendation",
     "2": "手術などを行う際の抗凝固薬・抗血小板薬取り扱いの参考目安(院内ポータル)",
@@ -385,7 +456,7 @@ const citations = {
     "11": "赤木晋介（編）, 周術期の安全な薬剤管理を考える会（執筆）. 術前休薬クイックリファレンス."
 };
 
-// ▼▼▼ VBA置換用マーカー ▼▼▼
+// VBA置換用マーカー
 const rawMasterData = `
 手術前中止薬一覧			本表は汎用薬を抜粋したものです。これ以外にも留意すべき薬剤があります。 あくまでも一目安としてご利用ください。			
 分類	分類2	商品名	一般名	休薬期間	引用	休薬理由
@@ -530,16 +601,16 @@ const rawMasterData = `
 糖尿病薬	ビグアナイド薬/DPP-4阻害薬	エクメットLD/HD	メトホルミン/ビルダグリプチン	前後2日	9	乳酸アシドーシスのリスク
 糖尿病薬	ビグアナイド薬/DPP-4阻害薬	メトアナLD/HD	メトホルミン/アナグリプチン	前後2日	9	乳酸アシドーシスのリスク
 糖尿病薬	ビグアナイド薬/チアゾリジン薬	メタクトLD/HD	メトホルミン/ピオグリタゾン	前後2日	9	乳酸アシドーシスのリスク
-骨粗鬆症治療薬	ビスホスホネート薬	アクトネル	リセドロン酸	歯科手術２カ月前	4	顎骨壊死のリスク
-骨粗鬆症治療薬	ビスホスホネート薬	ゾメタ	ゾレドロン酸	歯科手術２カ月前	4	顎骨壊死のリスク
-骨粗鬆症治療薬	ビスホスホネート薬	ダイドロネル	エチドロン酸	歯科手術２カ月前	4	顎骨壊死のリスク
-骨粗鬆症治療薬	ビスホスホネート薬	パミドロン酸	パミドロン酸	歯科手術２カ月前	4	顎骨壊死のリスク
-骨粗鬆症治療薬	ビスホスホネート薬	フォサマック	アレンドロン酸	歯科手術２カ月前	4	顎骨壊死のリスク
-骨粗鬆症治療薬	ビスホスホネート薬	ベネット	リセドロン酸	歯科手術２カ月前	4	顎骨壊死のリスク
-骨粗鬆症治療薬	ビスホスホネート薬	ボナロン	アレンドロン酸	歯科手術２カ月前	4	顎骨壊死のリスク
-骨粗鬆症治療薬	ビスホスホネート薬	ボノテオ	ミノドロン酸	歯科手術２カ月前	4	顎骨壊死のリスク
-骨粗鬆症治療薬	ビスホスホネート薬	ボンビバ	イバンドロン酸	歯科手術２カ月前	4	顎骨壊死のリスク
-骨粗鬆症治療薬	ビスホスホネート薬	リクラスト	ゾレドロン酸	歯科手術２カ月前	4	顎骨壊死のリスク
+骨粗鬆症治療薬	ビスホスホネート薬	アクトネル	リセドロン酸	院内推奨期間なし	4	顎骨壊死のリスク
+骨粗鬆症治療薬	ビスホスホネート薬	ゾメタ	ゾレドロン酸	院内推奨期間なし	4	顎骨壊死のリスク
+骨粗鬆症治療薬	ビスホスホネート薬	ダイドロネル	エチドロン酸	院内推奨期間なし	4	顎骨壊死のリスク
+骨粗鬆症治療薬	ビスホスホネート薬	パミドロン酸	パミドロン酸	院内推奨期間なし	4	顎骨壊死のリスク
+骨粗鬆症治療薬	ビスホスホネート薬	フォサマック	アレンドロン酸	院内推奨期間なし	4	顎骨壊死のリスク
+骨粗鬆症治療薬	ビスホスホネート薬	ベネット	リセドロン酸	院内推奨期間なし	4	顎骨壊死のリスク
+骨粗鬆症治療薬	ビスホスホネート薬	ボナロン	アレンドロン酸	院内推奨期間なし	4	顎骨壊死のリスク
+骨粗鬆症治療薬	ビスホスホネート薬	ボノテオ	ミノドロン酸	院内推奨期間なし	4	顎骨壊死のリスク
+骨粗鬆症治療薬	ビスホスホネート薬	ボンビバ	イバンドロン酸	院内推奨期間なし	4	顎骨壊死のリスク
+骨粗鬆症治療薬	ビスホスホネート薬	リクラスト	ゾレドロン酸	院内推奨期間なし	4	顎骨壊死のリスク
 糖尿病薬	速効型ｲﾝｽﾘﾝ分泌促進薬/α-GI	グルベス	ミチグリニド/ボグリボース	当日		インスリンによる血糖管理が望まれるため
 女性ﾎﾙﾓﾝ薬(ピル)	卵胞ホルモン/黄体ホルモン	アンジュ21錠,28錠	ｴﾁﾆﾙｴｽﾄﾗｼﾞｵｰﾙ/ﾚﾎﾞﾉﾙｹﾞｽﾄﾚﾙ	手術前４週､術後２週	3	静脈血栓塞栓症のリスク
 女性ﾎﾙﾓﾝ薬(ピル)	卵胞ホルモン/黄体ホルモン	ジェミーナ	ｴﾁﾆﾙｴｽﾄﾗｼﾞｵｰﾙ/ﾚﾎﾞﾉﾙｹﾞｽﾄﾚﾙ	手術前４週､術後２週	3	静脈血栓塞栓症のリスク
@@ -552,11 +623,11 @@ const rawMasterData = `
 女性ﾎﾙﾓﾝ薬(ピル)	卵胞ホルモン/黄体ホルモン	ヤーズフレックス	ｴﾁﾆﾙｴｽﾄﾗｼﾞｵｰﾙ/ﾄﾞﾛｽﾋﾟﾚﾉﾝ	手術前４週､術後２週	3	静脈血栓塞栓症のリスク
 女性ﾎﾙﾓﾝ薬(ピル)	卵胞ホルモン/黄体ホルモン	ラベルフィーユ21錠,28錠	ｴﾁﾆﾙｴｽﾄﾗｼﾞｵｰﾙ/ﾚﾎﾞﾉﾙｹﾞｽﾄﾚﾙ	手術前４週､術後２週	3	静脈血栓塞栓症のリスク
 女性ﾎﾙﾓﾝ薬(ピル)	卵胞ホルモン/黄体ホルモン	ルナベルLD/ULD	ｴﾁﾆﾙｴｽﾄﾗｼﾞｵｰﾙ/ ﾉﾙｴﾁｽﾃﾛﾝ	手術前４週､術後２週	3	静脈血栓塞栓症のリスク
-鎮痛薬	NSAIDｓ	ボルタレン	ジクロフェナク	院内推奨期間なし	2	消化管縫合不全のリスク･腎不全のリスク
-鎮痛薬	NSAIDｓ	ナボール	ジクロフェナク	院内推奨期間なし	2	消化管縫合不全のリスク･腎不全のリスク
-鎮痛薬	NSAIDｓ	ジクトルテープ	ジクロフェナク	院内推奨期間なし	2	消化管縫合不全のリスク･腎不全のリスク
-鎮痛薬	NSAIDｓ	モービック	メロキシカム	院内推奨期間なし	2	腎不全のリスク
-鎮痛薬	NSAIDｓ	セレコックス	セレコキシブ	院内推奨期間なし	2	冠動脈バイパス再建術では投与禁忌
+鎮痛薬	NSAIDs	ボルタレン	ジクロフェナク	院内推奨期間なし	2	消化管縫合不全のリスク･腎不全のリスク
+鎮痛薬	NSAIDs	ナボール	ジクロフェナク	院内推奨期間なし	2	消化管縫合不全のリスク･腎不全のリスク
+鎮痛薬	NSAIDs	ジクトルテープ	ジクロフェナク	院内推奨期間なし	2	消化管縫合不全のリスク･腎不全のリスク
+鎮痛薬	NSAIDs	モービック	メロキシカム	院内推奨期間なし	2	腎不全のリスク
+鎮痛薬	NSAIDs	セレコックス	セレコキシブ	院内推奨期間なし	2	冠動脈バイパス再建術では投与禁忌
 抗パーキンソン病薬	D2受容体遮断薬	レキップ	ロピニロール	院内推奨期間なし	2	腸切除･人工肛門造設術患者には慎重投与
 抗精神病薬	非定形型	ロドピン	ゾテピン	院内推奨期間なし	2	ロボトミー手術患者には慎重投与
 抗精神病薬	SDA	リスパダール	リスペリドン	院内推奨期間なし	2	白内障手術時､術中虹彩緊張低下症候群のリスク
@@ -736,14 +807,12 @@ const rawMasterData = `
 10:心不全治療におけるSGLT2阻害薬の適正使用に関するRecommendation						
 11:赤木晋介（編）, 周術期の安全な薬剤管理を考える会（執筆）. 術前休薬クイックリファレンス.						
 `; // DATA_MARKER_END
-// ▲▲▲ VBA置換用マーカーここまで ▲▲▲
 
 let masterData = [];
 
 function init() {
     parseMasterData(rawMasterData);
     
-    // 引用リスト
     const citationListEl = document.getElementById("citationList");
     const printCitationListEl = document.getElementById("printCitationList");
     let cHtml = "";
@@ -753,41 +822,20 @@ function init() {
     citationListEl.innerHTML = `<ul class="citation-list">${cHtml}</ul>`;
     printCitationListEl.innerHTML = `<ul class="citation-list">${cHtml}</ul>`;
 
-    // 検索初期表示
     filterMasterTable();
-    
-    // トップへ戻るボタン制御
-    const backToTopBtn = document.getElementById("backToTop");
-    window.onscroll = function() {
-        if (document.body.scrollTop > 200 || document.documentElement.scrollTop > 200) {
-            backToTopBtn.style.display = "block";
-        } else {
-            backToTopBtn.style.display = "none";
-        }
-    };
 }
 
 function parseMasterData(rawData) {
     masterData = [];
     const lines = rawData.trim().split("\n");
     let isHeaderFound = false;
-    
     for (let i = 0; i < lines.length; i++) {
         const line = lines[i].trim();
         if(!line) continue;
-        
-        // ヘッダー行検出: "分類" から始まる行をヘッダーとみなし、スキップする
-        if (line.startsWith("分類")) {
-            isHeaderFound = true;
-            continue; 
-        }
-        
-        // ヘッダーが見つかるまでは読み飛ばす
+        if (line.startsWith("分類")) { isHeaderFound = true; continue; }
         if (!isHeaderFound) continue;
-        
         const cols = line.split("\t");
         if (cols.length < 3) continue;
-        
         masterData.push({
             type: cols[0] || "",
             type2: cols[1] || "",
@@ -800,9 +848,6 @@ function parseMasterData(rawData) {
     }
 }
 
-// ==========================================
-// 2. クリーニング
-// ==========================================
 const ngKeywords = ["薬効名称", "院内", "分１", "分２", "分３", "分４", "分５", "１日", "1日", "回", "食後", "食前", "朝", "昼", "夕", "眠前", "Rp", "Ｒｐ", "RP", "rp"];
 const externalKeywords = ["点眼", "眼軟膏", "軟膏", "クリーム", "ゲル", "ローション", "パップ", "貼付", "テープ", "坐剤", "坐薬", "点鼻", "吸入", "トローチ", "うがい", "懸濁性"];
 const externalForms_ClipAfter = ["懸濁性点眼液", "配合点眼液", "点眼液", "眼軟膏", "軟膏剤", "貼付剤", "吸入液", "吸入剤", "点鼻液", "点鼻剤", "クリーム", "ローション", "うがい薬", "トローチ", "パップ", "ゲル", "軟膏", "坐剤", "坐薬"];
@@ -811,13 +856,10 @@ const oralForms_ClipBefore = ["口腔内崩壊錠", "ドライシロップ", "�
 function cleanDrugName(rawText) {
     if (!rawText || rawText.trim() === "") return null;
     let fullDrugName = rawText.trim();
-    // 簡易的なNGワードチェック（ただしRpなどはループ処理で制御される）
-    // ループ側で制御するので、ここでは整形のみに集中しても良いが、
-    // 既存ロジックを踏襲して念のためチェック
-    for (const ng of ngKeywords) {
-        if (fullDrugName.indexOf(ng) !== -1 && ng !== "Rp" && ng !== "Ｒｐ") return null; 
-    }
-    fullDrugName = fullDrugName.replace(/（[^）]+）/g, "").replace(/^[\s　]+/, "").split(/[\s　]+/)[0].replace("★", "");
+    fullDrugName = fullDrugName.replace(/（[^）]+）/g, "").replace(/^[\s　]+/, "");
+    const splitMatch = fullDrugName.match(/^([^\s　「]+)/);
+    if(splitMatch) { fullDrugName = splitMatch[1]; }
+    fullDrugName = fullDrugName.replace("★", "").replace("（医療用）", "");
     fullDrugName = fullDrugName.replace(/[A-Za-z0-9]/g, s => String.fromCharCode(s.charCodeAt(0) + 0xFEE0));
 
     let processedName = fullDrugName;
@@ -825,33 +867,23 @@ function cleanDrugName(rawText) {
     if (isExternal) {
         for (const form of externalForms_ClipAfter) {
             const pos = fullDrugName.indexOf(form);
-            if (pos !== -1) {
-                processedName = fullDrugName.substring(0, pos + form.length);
-                break;
-            }
+            if (pos !== -1) { processedName = fullDrugName.substring(0, pos + form.length); break; }
         }
     } else {
         for (const form of oralForms_ClipBefore) {
             const pos = fullDrugName.indexOf(form);
-            if (pos !== -1) {
-                processedName = fullDrugName.substring(0, pos);
-                break;
-            }
+            if (pos !== -1) { processedName = fullDrugName.substring(0, pos); break; }
         }
     }
     return processedName.trim();
 }
 
-// ==========================================
-// 3. 判定ロジック (Strict Rpモード対応)
-// ==========================================
 function processData() {
     const rawInput = document.getElementById("rawInput").value;
     const surgeryDateStr = document.getElementById("surgeryDate").value;
     const resultTableBody = document.querySelector("#resultTable tbody");
     const hasDate = !!surgeryDateStr;
 
-    // ヘッダー・列制御
     const dateText = hasDate ? new Date(surgeryDateStr).toLocaleDateString('ja-JP', {year:'numeric', month:'2-digit', day:'2-digit'}) : "未設定";
     document.getElementById("printDateDisplay").textContent = "手術予定日：" + dateText;
     const colHeader = document.querySelector(".col-calc");
@@ -859,98 +891,79 @@ function processData() {
 
     resultTableBody.innerHTML = "";
     
-    // 行分割
     const lines = rawInput.split("\n");
     
-    // Strictモード判定: 入力全体に「Rp」が含まれているか？
-    const useStrictRpMode = lines.some(line => line.match(/Rp|Ｒｐ/i));
+    let hasRp = false;
+    let hasIndent = false;
     
+    for (const line of lines) {
+        if (/Rp|Ｒｐ|RP|rp/i.test(line)) { hasRp = true; break; }
+        const checkStr = line.replace(/　/g, " ");
+        const blankCount = checkStr.length - checkStr.trimStart().length;
+        if (blankCount >= 2 && line.trim() !== "") { hasIndent = true; }
+    }
+    
+    let mode = "Simple";
+    if (hasRp) { mode = "StrictRp"; } else if (hasIndent) { mode = "Indent"; }
+
     let isPrevRp = false;
     let hasData = false;
 
     lines.forEach(line => {
-        const originalLine = line; // 元の行を保持
-        
-        // 現在行がRpかどうか判定
-        const isCurrentRp = (line.match(/Rp|Ｒｐ/i) !== null);
-        
+        const trimmedLine = line.trim();
         let shouldKeep = false;
         
-        if (useStrictRpMode) {
-            // Strictモード: 直前の行がRpで、かつ今の行がRpでない場合のみ採用
-            if (isPrevRp && !isCurrentRp) {
-                shouldKeep = true;
+        if (trimmedLine !== "") {
+            if (mode === "StrictRp") {
+                const isCurrentRp = /Rp|Ｒｐ|RP|rp/i.test(line);
+                if (isPrevRp && !isCurrentRp) { shouldKeep = true; }
+                isPrevRp = isCurrentRp;
+            } else if (mode === "Indent") {
+                const checkStr = line.replace(/　/g, " ");
+                const blankCount = checkStr.length - checkStr.trimStart().length;
+                const isNG = ngKeywords.some(ng => line.includes(ng));
+                if (blankCount >= 2 && !isNG) { shouldKeep = true; }
+            } else {
+                const isNG = ngKeywords.some(ng => line.includes(ng));
+                if (!isNG) { shouldKeep = true; }
             }
-        } else {
-            // 通常モード: インデントが全角換算で2文字分以上あるか判定
-            // 全角スペースを半角スペースに置換して計算
-            const checkStr = line.replace(/　/g, " ");
-            const blankCount = checkStr.length - checkStr.trimStart().length;
             
-            // 空行でなく、NGワードが含まれていないことも条件
-            const isNG = ngKeywords.some(ng => line.includes(ng));
-            
-            if (blankCount >= 2 && !isNG && line.trim() !== "") {
-                shouldKeep = true;
-            }
-        }
-        
-        if (shouldKeep) {
-            const cleanedName = cleanDrugName(line);
-            if (cleanedName) {
-                hasData = true;
-                const match = masterData.find(d => d.brandName.startsWith(cleanedName) || d.genericName === cleanedName);
-                const tr = document.createElement("tr");
+            if (shouldKeep) {
+                const cleanedName = cleanDrugName(line);
+                if (cleanedName) {
+                    hasData = true;
+                    const match = masterData.find(d => d.brandName.startsWith(cleanedName) || d.genericName === cleanedName);
+                    const tr = document.createElement("tr");
 
-                if (match) {
-                    let rowClass = "";
-                    let calcText = "-";
-                    
-                    if (match.period.includes("院内推奨期間なし")) {
-                         rowClass = "row-gray";
-                         calcText = "院内推奨期間なし";
-                    } else {
-                        const testCalc = calculateStopDateStrict(match.period, "2025-01-01");
-                        if (testCalc.alert || match.period.includes("資料")) {
-                            rowClass = "row-alert";
+                    if (match) {
+                        let rowClass = "";
+                        let calcText = "-";
+                        
+                        if (match.period.includes("院内推奨期間なし")) {
+                             rowClass = "row-gray";
+                             calcText = "院内推奨期間なし";
                         } else {
-                            rowClass = "row-none";
+                            // "院内推奨期間なし"以外はすべてアラート(赤)にする
+                            rowClass = "row-alert";
                         }
-                    }
 
-                    if (hasDate && !match.period.includes("院内推奨期間なし")) {
-                        const calc = calculateStopDateStrict(match.period, surgeryDateStr);
-                        calcText = calc.text;
-                    } else if (!hasDate && rowClass === "row-alert") {
-                        calcText = match.period;
-                    }
+                        if (hasDate && !match.period.includes("院内推奨期間なし")) {
+                            const calc = calculateStopDateStrict(match.period, surgeryDateStr);
+                            calcText = calc.text;
+                        } else if (!hasDate && rowClass === "row-alert") {
+                            calcText = match.period;
+                        }
 
-                    tr.className = rowClass;
-                    tr.innerHTML = `
-                        <td class="fw-bold">${cleanedName}</td>
-                        <td class="small">${match.type}</td>
-                        <td class="small">${match.period}</td>
-                        <td class="fw-bold" style="${hasDate?'':'display:none;'}">${calcText}</td>
-                        <td class="small">${match.reason}</td>
-                        <td class="small text-center">${match.ref}</td>
-                    `;
-                } else {
-                    tr.className = "row-none";
-                    tr.innerHTML = `
-                        <td>${cleanedName}</td>
-                        <td class="small text-muted">-</td>
-                        <td class="small text-muted">指定なし</td>
-                        <td class="small text-muted" style="${hasDate?'':'display:none;'}">-</td>
-                        <td class="small text-muted">指定なし</td>
-                        <td class="small text-muted">-</td>
-                    `;
+                        tr.className = rowClass;
+                        tr.innerHTML = `<td class="fw-bold">${cleanedName}</td><td class="small">${match.type}</td><td class="small">${match.period}</td><td class="fw-bold" style="${hasDate?'':'display:none;'}">${calcText}</td><td class="small">${match.reason}</td><td class="small text-center">${match.ref}</td>`;
+                    } else {
+                        tr.className = "row-none";
+                        tr.innerHTML = `<td>${cleanedName}</td><td class="small text-muted">-</td><td class="small text-muted">指定なし</td><td class="small text-muted" style="${hasDate?'':'display:none;'}">-</td><td class="small text-muted">指定なし</td><td class="small text-muted">-</td>`;
+                    }
+                    resultTableBody.appendChild(tr);
                 }
-                resultTableBody.appendChild(tr);
             }
         }
-        
-        // 次のループのために状態更新
-        isPrevRp = isCurrentRp;
     });
 
     if (!hasData) resultTableBody.innerHTML = '<tr><td colspan="6" class="text-center text-muted py-4">有効なデータなし</td></tr>';
@@ -983,21 +996,18 @@ function calculateStopDateStrict(period, sDateStr) {
     if (period === "糖尿病3日前/心不全当日") return { text: `${fmt(addDay(sDate, -3))} または ${fmt(sDate)}`, alert: true };
     if (period === "手術前４週､術後２週") return { text: `${fmt(addDay(sDate, -28))}～${fmt(addDay(sDate, 14))}`, alert: true };
     
-    if (["ｵﾋﾟｵｲﾄﾞ投与1週間前", "継続を推奨", "歯科手術２カ月前", "主治医判断", "院内推奨期間なし"].includes(period)) {
-        return { text: "-", alert: false };
-    }
+    // 追加: ④参照が含まれる場合はアラート
+    if (period.indexOf("④") !== -1 || period.indexOf("参照") !== -1) { return { text: "④参照", alert: true }; }
+
+    if (["ｵﾋﾟｵｲﾄﾞ投与1週間前", "継続を推奨", "歯科手術２カ月前", "主治医判断", "院内推奨期間なし"].includes(period)) { return { text: "-", alert: false }; }
     return { text: "-", alert: false };
 }
 
-// ==========================================
-// 4. カレンダー & 検索
-// ==========================================
 function calcScheduleTab() {
     const dStr = document.getElementById("scheduleDateInput").value;
     const area = document.getElementById("scheduleResultArea");
     const dateText = dStr ? new Date(dStr).toLocaleDateString('ja-JP', {year:'numeric', month:'2-digit', day:'2-digit'}) : "未設定";
     document.getElementById("printScheduleDateDisplay").textContent = "手術予定日：" + dateText;
-
     if (!dStr) { area.innerHTML = ""; return; }
     
     const schedulePatterns = ["1～3日", "1日前", "1週間", "24 時間以上", "24時間前", "28日前", "2週間", "2日", "2日前", "3〜7日", "3日前", "4～6週間", "48時間前", "5日以上前", "7～10 日前", "7日前", "ｵﾋﾟｵｲﾄﾞ投与1週間前", "資料参照", "継続を推奨", "歯科手術２カ月前", "主治医判断", "前後2日", "長期不動状態の３日前", "当日", "糖尿病3日前/心不全当日", "院内推奨期間なし", "手術前４週､術後２週"];
@@ -1015,7 +1025,6 @@ function filterMasterTable() {
     const tbody = document.getElementById("masterTableBody");
     tbody.innerHTML = "";
     const keywords = txt.replace(/　/g, " ").trim().split(" ").filter(k => k !== "");
-    
     masterData.forEach(row => {
         let isMatch = true;
         if (keywords.length > 0) {
@@ -1030,12 +1039,9 @@ function filterMasterTable() {
     });
 }
 
-// ==========================================
-// 5. 抗凝固・抗血小板薬プロトコル (復元版)
-// ==========================================
+// 抗凝固プロトコル
 let currentDrug = null;
 let currentSurgery = null;
-
 const definitions = {
     warfarin: {
         high: "<div class='risk-list'><div class='hanging-item'>・心原性脳塞栓症の既往</div><div class='hanging-item'>・弁膜症を合併する心房細動</div><div class='hanging-item'>・弁膜症ではないが脳卒中の高リスク心房細動</div><div class='hanging-item'>・機械弁置換術後の血栓塞栓症の既往</div><div class='hanging-item'>・僧帽弁の機械弁置換術後</div><div class='hanging-item'>・抗リン脂質抗体症候群</div><div class='hanging-item'>・深部静脈血栓症・肺塞栓症</div></div>",
@@ -1047,36 +1053,30 @@ const definitions = {
         low: "左記以外"
     }
 };
-
 const footerTexts = {
     warfarin: "<strong>ヘパリン置換を行った場合のヘパリン中止時期：</strong><br>ワーファリン再開1〜2日後に中止（中止時効果確認）。<br>（ワーファリン再開5日目以降、至適INR回復の確認を行う）",
     doac: "<strong>ヘパリン置換を行った場合のヘパリン中止時期：</strong><br>持続静注時（未分画ヘパリン）：DOAC投与開始時に中止。<br>皮下注時（クレキサン等）：<br>・プラザキサは次回皮下注製剤投与2時間前に投与開始、次回皮下注製剤の投与中止。<br>・イグザレルトは次回皮下注製剤投与0〜2時間前に投与開始。<br>・エリキュース/リクシアナは次回皮下注製剤投与時間に投与開始。",
     platelet: "<strong>ヘパリン置換を行った場合のヘパリン中止時期：</strong><br>抗血小板剤再開3〜4日後に中止"
 };
-
 function setACDrug(drug, btn) {
     currentDrug = drug;
     document.querySelectorAll('#drug-buttons button').forEach(b => b.classList.remove('selected'));
     btn.classList.add('selected');
     updateACDisplay();
 }
-
 function setACSurgery(surgery, btn) {
     currentSurgery = surgery;
     document.querySelectorAll('#surgery-buttons button').forEach(b => b.classList.remove('selected'));
     btn.classList.add('selected');
     updateACDisplay();
 }
-
 function getAcScheduleHtml(daysOff, sDateVal) {
     if(!sDateVal || daysOff === 0) return "";
     const sDate = new Date(sDateVal);
     const fmt = d => (d.getMonth() + 1) + '/' + d.getDate();
-    
     let minDays, maxDays;
     if (Array.isArray(daysOff)) { minDays = daysOff[0]; maxDays = daysOff[1]; } 
     else { minDays = daysOff; maxDays = daysOff; }
-
     if (minDays === maxDays) {
         const d = new Date(sDate); d.setDate(sDate.getDate() - minDays);
         return `${fmt(d)}から休薬`;
@@ -1086,10 +1086,8 @@ function getAcScheduleHtml(daysOff, sDateVal) {
         return `${fmt(d1)}～${fmt(d2)}から休薬`;
     }
 }
-
 function updateACDisplay() {
     if(!currentDrug || !currentSurgery) return;
-
     const resArea = document.getElementById('ac-result-area');
     resArea.style.display = 'block';
     
@@ -1102,7 +1100,6 @@ function updateACDisplay() {
     let h_msg = "", l_msg = "";
     let h_days = 0, l_days = 0;
 
-    // Logic ported from previous file
     if(currentDrug === 'warfarin') {
         if(currentSurgery === 'dental') { h_msg = l_msg = "継続下での施行推奨<br><span style='font-size:0.9rem'>（治療域内確認）</span>"; }
         else if(currentSurgery === 'minor') { h_msg = l_msg = "休薬なし<br><span style='font-size:0.9rem'>（治療域内確認）</span>"; }
@@ -1129,10 +1126,8 @@ function updateACDisplay() {
         else if(currentSurgery === 'major') { h_msg = "【休薬期間】シロスタゾール 2日<br><div class='bridge-info'>中止翌日よりヘパリン置換</div>"; l_msg = "【休薬期間】2日<br><div class='bridge-info'>場合によって、中止翌日よりヘパリン置換</div>"; h_days = l_days = 2; }
         else if(currentSurgery === 'spinal') { h_msg = "【休薬期間】シロスタゾール 2日<br><div class='bridge-info'>（必要に応じて、）中止翌日よりヘパリン置換</div>"; l_msg = "低リスク群では休薬なし"; h_days = 2; }
     }
-
     document.getElementById('high-risk-action').innerHTML = h_msg;
     document.getElementById('low-risk-action').innerHTML = l_msg;
-
     const sDateVal = document.getElementById('ac-surgery-date').value;
     const highSch = document.getElementById('high-schedule');
     const lowSch = document.getElementById('low-schedule');
@@ -1143,36 +1138,7 @@ function updateACDisplay() {
     } else {
         highSch.style.display = 'none'; lowSch.style.display = 'none';
     }
-
     resArea.scrollIntoView({ behavior: 'smooth', block: 'start' });
-}
-
-// ==========================================
-// 6. プレビュー
-// ==========================================
-function showPreview() {
-    const activeTab = document.querySelector('.tab-pane.active').id;
-    let content = "";
-    if(activeTab === "check-tab") {
-        const header = document.querySelector("#check-tab .print-header").outerHTML;
-        const table = document.getElementById("resultTable").outerHTML;
-        const refs = document.getElementById("printCitationList").outerHTML;
-        content = `${header}${table}<div class="mt-4 pt-2 border-top"><small class="fw-bold">【引用・根拠】</small>${refs}</div>`;
-    } else if(activeTab === "schedule-tab") {
-        content = document.querySelector("#schedule-tab .print-header").outerHTML + document.getElementById("scheduleResultArea").innerHTML;
-    } else {
-        content = "この画面は印刷ボタンから直接印刷してください。";
-    }
-    document.getElementById("previewContent").innerHTML = content;
-    new bootstrap.Modal(document.getElementById('previewModal')).show();
-}
-
-function printFromPreview() {
-    // モーダルを閉じてから印刷（背景暗転バグ回避のため）
-    const modalEl = document.getElementById('previewModal');
-    const modal = bootstrap.Modal.getInstance(modalEl);
-    modal.hide();
-    setTimeout(() => { window.print(); }, 300);
 }
 
 window.onload = init;
