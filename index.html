@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>術前休薬確認ツール Ver34.0</title>
+    <title>術前休薬確認ツール Ver36.1</title>
     <style>
         /* --- 基本設定 --- */
         body { font-family: "Helvetica Neue", Arial, sans-serif; background-color: #f4f6f9; color: #333; margin: 0; padding: 20px; }
@@ -14,7 +14,9 @@
         .d-flex { display: flex; }
         .align-items-center { align-items: center; }
         .justify-content-between { justify-content: space-between; }
+        .justify-content-center { justify-content: center; } /* 追加: 中央寄せ */
         .gap-2 { gap: 0.5rem; }
+        .gap-3 { gap: 1rem; }
         .w-100 { width: 100%; }
         .w-50 { width: 50%; }
         .flex-fill { flex: 1 1 auto; }
@@ -167,8 +169,26 @@
         #ac-wrapper .drug-list { font-size: 0.85rem; font-weight: normal; margin-top: 5px; display: block; }
         #ac-wrapper .drug-item { display: block; }
         #ac-wrapper .bottom-notes { margin-top: 20px; padding: 15px; border-top: 2px solid #333; font-size: 0.85rem; }
-        #ac-wrapper .note-block { margin-bottom: 10px; }
-        #ac-wrapper .note-title { font-weight: bold; text-decoration: underline; margin-bottom: 3px;}
+        
+        /* 下部注釈テーブル (幅調整) */
+        #ac-wrapper table.note-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; margin-top: 10px; }
+        #ac-wrapper table.note-table th, #ac-wrapper table.note-table td { border: 1px solid #888; padding: 6px 6px; vertical-align: middle; }
+        #ac-wrapper table.note-table th { background-color: #e9ecef; text-align: center; }
+        
+        #ac-wrapper table.note-table th:nth-child(1), #ac-wrapper table.note-table td:nth-child(1) { width: 8%; text-align: center; font-weight: bold; }
+        #ac-wrapper table.note-table th:nth-child(2), #ac-wrapper table.note-table td:nth-child(2) { width: 10%; text-align: center; }
+        #ac-wrapper table.note-table tr:nth-child(3) td:nth-child(2) { text-align: left !important; vertical-align: top; }
+
+        /* スケジュール（休薬日）テーブル */
+        .timeline-container { max-width: 900px; margin: 20px auto; }
+        .timeline-table { width: 100%; border-collapse: collapse; font-size: 1.2rem; }
+        .timeline-table th, .timeline-table td { border: 1px solid #ccc; padding: 12px 15px; vertical-align: middle; }
+        .timeline-table th { background-color: #2c3e50; color: white; text-align: center; }
+        .timeline-date-col { width: 30%; text-align: center; font-weight: bold; white-space: nowrap; background-color: #f8f9fa; }
+        .timeline-content-col { text-align: left; }
+        .timeline-row-today { background-color: #ffe6e6; border: 2px solid #dc3545; }
+        .timeline-row-today .timeline-date-col { color: #dc3545; font-size: 1.3rem; }
+        .timeline-row-today .timeline-content-col { font-weight: bold; color: #dc3545; }
 
         /* メニューバーCSS */
         #menu-toggle-btn { position: fixed; top: 15px; right: 20px; z-index: 9999; width: 50px; height: 50px; background-color: #333; border: 2px solid #fff; border-radius: 8px; cursor: pointer; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 6px; box-shadow: 0 4px 8px rgba(0,0,0,0.3); transition: all 0.3s; }
@@ -190,8 +210,6 @@
         .editable-cell:focus { border-color: #0d6efd; outline: 0; box-shadow: 0 0 0 0.2rem rgba(13,110,253,.25); }
         .btn-quick-set { white-space: nowrap; font-size: 0.75rem; padding: 2px 6px; margin-left: 3px; cursor: pointer; }
         .edit-mark { margin-left: 5px; font-size: 1.1rem; color: #dc3545; display: none; white-space: nowrap;}
-        
-        /* 印刷用テーブル（影武者） */
         #printResultTable { display: none; }
 
         /* 印刷設定 */
@@ -219,13 +237,17 @@
             .d-print-block { display: block !important; }
             #printCitationList { column-count: 2; column-gap: 20px; font-size: 9pt; margin-top: 10px; }
             
-            /* プロトコル図表の印刷設定 (縦向き・改ページ・80%縮小で1枚に収める) */
-            details { display: block !important; page-break-before: always; zoom: 0.8; }
+            /* プロトコル図表の印刷設定 */
+            details { display: block !important; page-break-before: always; page-break-after: always; zoom: 0.8; }
             #ac-wrapper .selection-area, #ac-wrapper .date-section { display: none; }
             #ac-wrapper details summary { display: none; }
             
             .table-container { display: block; overflow: visible; }
             .ref-table { width: 100%; }
+
+            /* スケジュールタブの印刷 */
+            .timeline-container { margin: 0; max-width: 100%; }
+            .timeline-table { font-size: 14pt !important; }
 
             @page { margin: 5mm; size: auto; }
         }
@@ -252,7 +274,7 @@
 
 <div class="container-main">
     <div class="d-flex justify-content-between align-items-center no-print mb-3">
-        <h3 class="fw-bold m-0" style="font-size:18px;">🏥 術前休薬確認ツール Ver34.0</h3>
+        <h3 class="fw-bold m-0" style="font-size:18px;">🏥 術前休薬確認ツール Ver36.1</h3>
         <button class="btn btn-secondary btn-sm" onclick="window.location.reload()">リセット</button>
     </div>
 
@@ -287,8 +309,8 @@
             </div>
 
             <div class="print-header">
-                <div style="font-size: 16pt; font-weight: bold;">薬剤休薬確認リスト</div>
-                <div id="printDateDisplay" style="font-size: 12pt; font-weight: bold;">手術予定日：未設定</div>
+                <div style="font-size: 16pt; font-weight: bold;">薬剤チェックシート</div>
+                <div id="printDateDisplay_Check" style="font-size: 12pt; font-weight: bold;">手術予定日：未設定</div>
             </div>
             <div class="d-none d-print-block small border-bottom mb-2 pb-1">
                 ※本表は汎用薬を抜粋したものです。これ以外にも留意すべき薬剤があります。あくまでも一目安としてご利用ください。
@@ -339,7 +361,7 @@
                 <div style="font-size: 16pt; font-weight: bold;">休薬日確認カレンダー</div>
                 <div id="printScheduleDateDisplay" style="font-size: 12pt; font-weight: bold;">手術予定日：未設定</div>
             </div>
-            <div class="row align-items-center mb-3 no-print">
+            <div class="row align-items-center mb-3 no-print justify-content-center">
                 <div class="col-auto"><label class="fw-bold">手術予定日：</label></div>
                 <div class="col-auto"><input type="date" id="scheduleDateInput" class="form-control" onchange="calcScheduleTab()"></div>
                 <div class="col-auto"><button class="btn btn-success" onclick="window.print()">このページを印刷</button></div>
@@ -439,7 +461,48 @@
                                 <tr class="bg-platelet"><td><span class="txt-bold">低リスク病態</span><div class="risk-list"><div class="hanging-item">左記以外</div></div></td><td><span class="txt-bold no-wrap">【休薬】同上</span><br><div class="heparin-note">場合によって、中止翌日よりヘパリン置換</div></td><td class="txt-center">低リスク群では休薬なし</td></tr>
                             </tbody>
                         </table>
-                        <div class="bottom-notes"><div class="note-block"><div class="note-title">ヘパリン置換を行った場合のヘパリン中止時期</div><div><strong>ワーファリン：</strong>ワーファリン再開1〜2日後に中止（中止時効果確認）。（再開5日目以降、至適INR回復の確認を行う）</div><div style="margin-top:5px;"><strong>DOAC：</strong><br>・持続静注時（未分画ヘパリン）：DOAC投与開始時に中止。<br>・皮下注時（クレキサン等）：<br>&nbsp;&nbsp;プラザキサは次回皮下注製剤投与2時間前に投与開始、次回皮下注製剤の投与中止。<br>&nbsp;&nbsp;イグザレルトは次回皮下注製剤投与0〜2時間前に投与開始。<br>&nbsp;&nbsp;エリキュース/リクシアナは次回皮下注製剤投与時間に投与開始。</div><div style="margin-top:5px;"><strong>抗血小板剤：</strong>再開3〜4日後に中止</div></div><div style="text-align:right; margin-top:10px; color:#666;">出典：2013.06 薬事委員会作成 / 2018.10 改訂</div></div>
+                        
+                        <div class="bottom-notes" style="margin-top:20px;">
+                            <div class="note-title" style="margin-bottom:10px;">ヘパリン置換を行った場合のヘパリン中止時期</div>
+                            <table class="note-table">
+                                <thead>
+                                    <tr>
+                                        <th>対象薬剤</th>
+                                        <th>ヘパリンの種類</th>
+                                        <th>中止時期の目安</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>ワーファリン</td>
+                                        <td>全般</td>
+                                        <td>再開1〜2日後（効果確認後）。<br><span style="font-size:0.85em; color:#666;">※再開5日目以降、至適INR回復を確認</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td rowspan="2">DOAC</td>
+                                        <td><strong>持続静注</strong><br><span style="font-size:0.85em">（未分画ヘパリン）</span></td>
+                                        <td>DOAC投与開始時に中止</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>皮下注</strong><br><span style="font-size:0.85em">（クレキサン等）</span></td>
+                                        <td>
+                                            <ul style="margin:0; padding-left:1.2em; line-height:1.4;">
+                                                <li style="margin-bottom:4px;"><strong>プラザキサ</strong>：次回投与予定の2時間前</li>
+                                                <li style="margin-bottom:4px;"><strong>イグザレルト</strong>：次回投与予定の0〜2時間前</li>
+                                                <li><strong>エリキュース/リクシアナ</strong>：次回投与予定時間</li>
+                                            </ul>
+                                            <div style="font-size:0.85em; color:#d00; margin-top:5px;">※上記タイミングでDOACを開始し、ヘパリンは中止</div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>抗血小板薬</td>
+                                        <td>全般</td>
+                                        <td>再開3〜4日後に中止</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <div style="text-align:right; margin-top:10px; color:#666;">出典：2013.06 薬事委員会作成 / 2018.10 改訂</div>
+                        </div>
                     </div>
                 </details>
             </div>
@@ -482,7 +545,6 @@ function syncToPrintTable(rowId, text) {
     const printCell = document.getElementById(rowId);
     if(printCell) {
         printCell.innerText = text;
-        // 変更マーク制御
         const original = printCell.getAttribute('data-original') || "";
         const mark = printCell.parentElement.querySelector('.edit-mark-print');
         if(mark) {
@@ -499,8 +561,6 @@ function checkEdit(el) {
     } else {
         mark.style.display = 'none';
     }
-    
-    // 影武者テーブルへ同期
     const printRowId = el.getAttribute('data-print-id');
     if(printRowId) syncToPrintTable(printRowId, current);
 }
@@ -541,8 +601,8 @@ const rawMasterData = `
 降圧薬	ARB/Ca拮抗薬	ザクラス	アジルサルタン・アムロジピン	24時間前	3	術中血圧低下のリスク
 降圧薬	ARB/Ca拮抗薬	ジルムロ	アジルサルタン・アムロジピン	24時間前	3	術中血圧低下のリスク
 抗血小板薬	抗血小板薬	バイアスピリン	アスピリン	院内プロトコル(別紙)参照	2	出血リスク
-抗血小板薬	抗血小板薬	コンプラビン	アスピリン・クロピドグレル	院内プロトコル(別紙)参照	2	出血リスク
-抗血小板薬	抗血小板薬	ロレアス	アスピリン・クロピドグレル	院内プロトコル(別紙)参照	2	出血リスク
+抗血小板薬	抗血小板薬	コンプラビン	クロピドグレル・アスピリン	院内プロトコル(別紙)参照	2	出血リスク
+抗血小板薬	抗血小板薬	ロレアス	クロピドグレル・アスピリン	院内プロトコル(別紙)参照	2	出血リスク
 抗血小板薬	抗血小板薬	バファリン	アスピリン・ダイアルミネート	院内プロトコル(別紙)参照	2	出血リスク
 抗血小板薬	抗血小板薬	キャブピリン	アスピリン・ボノプラザン	院内プロトコル(別紙)参照	2	出血リスク
 抗血小板薬	抗血小板薬	タケルダ	アスピリン・ランソプラゾール	院内プロトコル(別紙)参照	2	出血リスク
@@ -613,7 +673,7 @@ const rawMasterData = `
 高脂血症治療薬	高脂血症治療薬	ロトリガ	オメガ－３脂肪酸エチル	7日前	ｴﾊﾟﾃﾞｰﾙを参考	出血リスク
 降圧薬	ARB	オルメテック	オルメサルタン	24時間前	3	術中血圧低下のリスク
 降圧薬	ARB	オルメサルタンメドキソミル	オルメサルタン	24時間前	3	術中血圧低下のリスク
-降圧薬	ARB/Ca拮抗薬	レザルタス	オルメサルタン・アゼルニジピン	24時間前	3	術中血圧低下のリスク
+降圧薬	ARB/Ca拮抗薬	レザルタス	オルメサルタンメドキソミル・アゼルニジピン	24時間前	3	術中血圧低下のリスク
 糖尿病薬	SGLT2阻害薬	カナグル	カナグリフロジン	3日前	1	ケトアシドーシスのリスク
 降圧薬	ACE阻害薬	カプトリル	カプトプリル	24時間前	3	術中血圧低下のリスク
 微小血栓形成阻害剤	抗VWF抗体	カブリビ	カプラシズマブ	7日前	3	出血リスク
@@ -752,7 +812,8 @@ const rawMasterData = `
 抗悪性腫瘍薬	ﾁﾛｼﾝｷﾅｰｾﾞ阻害薬	ヴォトリエント	パゾパニブ	主治医判断	3	創傷治癒遅延のリスク
 抗血栓性末梢循環改善剤	血漿フィブリノゲン濃度低下	デフィブラーゼ	バトロキソビン	院内推奨期間なし	3	出血リスク
 骨粗鬆症治療薬	ビスホスホネート薬	パミドロン酸	パミドロン酸	院内推奨期間なし	4	顎骨壊死のリスク
-抗精神病薬	SDA	インヴェガ	パリペリドン	院内推奨期間なし	3	白内障手術時､術中虹彩緊張低下症候群のリスク
+抗精神病薬	SDA	インヴェガ	パリペリドンパルミチン酸エステル	院内推奨期間なし	3	白内障手術時､術中虹彩緊張低下症候群のリスク
+抗精神病薬	SDA	パリペリドン	パリペリドンパルミチン酸エステル	院内推奨期間なし	3	白内障手術時､術中虹彩緊張低下症候群のリスク
 降圧薬	ARB	ディオバン	バルサルタン	24時間前	3	術中血圧低下のリスク
 降圧薬	ARB/Ca拮抗薬	アムバロ	バルサルタン・アムロジピン	24時間前	3	術中血圧低下のリスク
 降圧薬	ARB/Ca拮抗薬	エックスフォージ	バルサルタン・アムロジピン	24時間前	3	術中血圧低下のリスク
@@ -853,6 +914,7 @@ const rawMasterData = `
 抗凝固薬	抗凝固薬	イグザレルト	リバーロキサバン	院内プロトコル(別紙)参照	2	出血リスク
 血管拡張薬	血管拡張薬	オパルモン	リマプロスト	1日前	3	出血リスク
 血管拡張薬	血管拡張薬	プロレナール	リマプロスト	1日前	3	出血リスク
+血管拡張薬	血管拡張薬	リマプロストアルファデクス	リマプロスト　アルファデクス	1日前	3	出血リスク
 糖尿病薬	GLP-1受容体作動薬	ビクトーザ	リラグルチド	当日		インスリンによる血糖管理が望まれるため
 経口腸管洗浄剤 	経口腸管洗浄剤 	ビジクリア	リン酸二水素ナトリウム一水和物・無水リン酸水素二ナトリウム	院内推奨期間なし	3	腹部外科手術後腸閉塞や腸管穿孔のリスク
 糖尿病薬	SGLT2阻害薬	ルセフィ	ルセオグリフロジン	3日前	1	ケトアシドーシスのリスク
@@ -876,7 +938,7 @@ const rawMasterData = `
 止瀉薬	収斂･粘膜保護作用	次硝酸ビスマス	次硝酸ビスマス	院内推奨期間なし	3	腸瘻･人工肛門で血中濃度増加のﾘｽｸ
 診断用剤 	診断用剤 	ピロニック	尿素（１３Ｃ）	院内推奨期間なし	3	胃切除後判定に影響する可能性
 診断用剤 	診断用剤 	ユービット	尿素（１３Ｃ）	院内推奨期間なし	3	胃切除後判定に影響する可能性
-減感作療法薬	減感作療法	シダキュア	標準化スギ花粉エキス	院内推奨期間なし	3	口腔内術後吸収率変化のリスク
+減感作療法薬	減感作療法	シダキュア	標準化スギ花粉エキス（２）	院内推奨期間なし	3	口腔内術後吸収率変化のリスク
 経口腸管洗浄剤 	経口腸管洗浄剤 	サルプレップ	無水硫酸ナトリウム・硫酸カリウム・硫酸マグネシウム水和物	院内推奨期間なし	3	腹部手術後腸閉塞のリスク
 造影剤	大腸CT用経口造影剤	エネマスター	硫酸バリウム	院内推奨期間なし	3	消化管切除後穿孔のリスク
 造影剤	注腸用X線造影剤	コロンフォート	硫酸バリウム	院内推奨期間なし	3	消化管切除後穿孔のリスク
@@ -899,7 +961,6 @@ let masterData = [];
 
 function init() {
     parseMasterData(rawMasterData);
-    
     const citationListEl = document.getElementById("citationList");
     const printCitationListEl = document.getElementById("printCitationList");
     let cHtml = "";
@@ -908,7 +969,6 @@ function init() {
     }
     citationListEl.innerHTML = `<ul class="citation-list">${cHtml}</ul>`;
     printCitationListEl.innerHTML = `<ul class="citation-list">${cHtml}</ul>`;
-
     filterMasterTable();
 }
 
@@ -1008,7 +1068,9 @@ function processData() {
     const hasDate = !!surgeryDateStr;
 
     const dateText = hasDate ? new Date(surgeryDateStr).toLocaleDateString('ja-JP', {year:'numeric', month:'2-digit', day:'2-digit'}) : "未設定";
-    document.getElementById("printDateDisplay").textContent = "手術予定日：" + dateText;
+    // Checkタブ用ヘッダー更新
+    document.getElementById("printDateDisplay_Check").textContent = "手術予定日：" + dateText;
+    
     const colHeader = document.querySelector(".col-calc");
     if(colHeader) colHeader.style.display = hasDate ? "" : "none";
 
@@ -1179,16 +1241,56 @@ function calcScheduleTab() {
     const dStr = document.getElementById("scheduleDateInput").value;
     const area = document.getElementById("scheduleResultArea");
     const dateText = dStr ? new Date(dStr).toLocaleDateString('ja-JP', {year:'numeric', month:'2-digit', day:'2-digit'}) : "未設定";
+    // Scheduleタブ用ヘッダー更新
     document.getElementById("printScheduleDateDisplay").textContent = "手術予定日：" + dateText;
+
     if (!dStr) { area.innerHTML = ""; return; }
     
-    const schedulePatterns = ["1～3日", "1日前", "1週間", "24時間以上", "24時間前", "28日前", "2週間", "2日", "2日前", "3〜7日", "3日前", "4～6週間", "48時間前", "5日以上前", "7～10 日前", "7日前", "ｵﾋﾟｵｲﾄﾞ投与1週間前", "資料参照", "継続を推奨", "歯科手術２カ月前", "主治医判断", "前後2日", "長期不動状態の３日前", "当日", "糖尿病3日前/心不全当日", "院内推奨期間なし", "手術前４週､術後２週"];
-    let html = `<table class="table table-bordered mt-3 w-auto table-custom"><thead><tr style="background-color:#2c3e50; color:white;"><th>休薬規定</th><th>計算結果</th></tr></thead><tbody>`;
-    schedulePatterns.forEach(pat => {
-        const res = calculateStopDateStrict(pat, dStr);
-        html += `<tr><td>${pat}</td><td>${res.text}</td></tr>`;
+    const patterns = [
+        { label: "手術前４週", days: -28 },
+        { label: "4～6週間前", days: -28 },
+        { label: "2週間前", days: -14 },
+        { label: "1週間前", days: -7 },
+        { label: "7日前", days: -7 },
+        { label: "5日以上前", days: -5 },
+        { label: "3日前", days: -3 },
+        { label: "2日前", days: -2 },
+        { label: "前日(1日前)", days: -1 },
+        { label: "手術当日", days: 0 },
+        { label: "術後2週", days: 14 }
+    ];
+
+    const sDate = new Date(dStr);
+    const fmt = (d) => `${d.getMonth()+1}/${d.getDate()} (${["日","月","火","水","木","金","土"][d.getDay()]})`;
+    const addDay = (d, n) => { const x = new Date(d); x.setDate(x.getDate() + n); return x; };
+
+    let html = `
+        <div class="timeline-container">
+            <table class="timeline-table">
+                <thead>
+                    <tr>
+                        <th>日付</th>
+                        <th>休薬・対応</th>
+                    </tr>
+                </thead>
+                <tbody>
+    `;
+
+    patterns.forEach(p => {
+        const targetDate = addDay(sDate, p.days);
+        const dateStr = fmt(targetDate);
+        const isToday = (p.days === 0);
+        const rowClass = isToday ? "timeline-row-today" : "";
+        
+        html += `
+            <tr class="${rowClass}">
+                <td class="timeline-date-col">${dateStr}</td>
+                <td class="timeline-content-col">${p.label}</td>
+            </tr>
+        `;
     });
-    html += `</tbody></table>`;
+
+    html += `</tbody></table></div>`;
     area.innerHTML = html;
 }
 
