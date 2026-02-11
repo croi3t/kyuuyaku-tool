@@ -3,78 +3,83 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>術前休薬確認ツール Ver38.8</title>
+    <title>術前休薬確認ツール Ver39.0</title>
     <style>
         /* --- 基本設定 --- */
         body { font-family: "Helvetica Neue", Arial, sans-serif; background-color: #f4f6f9; color: #333; margin: 0; padding: 20px; }
         * { box-sizing: border-box; }
 
-        /* IE警告用スタイル */
-        #ie-warning { display: none; background-color: #dc3545; color: white; padding: 15px; text-align: center; font-weight: bold; position: fixed; top: 0; left: 0; width: 100%; z-index: 99999; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+        /* --- IE警告モーダル --- */
+        #ie-warning {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(0,0,0,0.85); z-index: 99999;
+            align-items: center; justify-content: center; flex-direction: column; color: white;
+        }
+        .ie-modal-content {
+            background-color: white; color: #333; padding: 30px; border-radius: 8px;
+            max-width: 600px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+        }
+        .ie-btn {
+            display: inline-block; background-color: #0d6efd; color: white; padding: 10px 20px;
+            text-decoration: none; border-radius: 5px; margin-top: 15px; font-weight: bold; cursor: pointer;
+        }
+        .ie-url-box {
+            background: #f0f0f0; padding: 10px; margin: 15px 0; word-break: break-all;
+            border: 1px solid #ccc; font-family: monospace; user-select: all;
+        }
 
-        /* ユーティリティ */
+        /* UIパーツ */
         .d-none { display: none !important; }
-        .d-flex { display: flex; }
-        .align-items-center { align-items: center; }
-        .justify-content-between { justify-content: space-between; }
-        .justify-content-center { justify-content: center; }
-        .gap-2 { gap: 0.5rem; }
-        .gap-3 { gap: 1rem; }
-        .w-100 { width: 100%; }
-        .w-50 { width: 50%; }
-        .flex-fill { flex: 1 1 auto; }
-        .mb-2 { margin-bottom: 0.5rem; }
-        .mb-3 { margin-bottom: 1rem; }
-        .mt-1 { margin-top: 0.25rem; }
-        .mt-2 { margin-top: 0.5rem; }
-        .mt-3 { margin-top: 1rem; }
-        .fw-bold { font-weight: bold; }
-        .small { font-size: 0.875rem; }
-        .text-center { text-align: center; }
-        .text-end { text-align: right; }
-        .text-muted { color: #6c757d; }
-        .text-primary { color: #0d6efd; }
-        .text-danger { color: #dc3545; }
-        .pt-2 { padding-top: 0.5rem; }
-        .py-4 { padding-top: 1.5rem; padding-bottom: 1.5rem; }
-        .border-top { border-top: 1px solid #dee2e6; }
-        .border-bottom { border-bottom: 1px solid #dee2e6; }
-
-        /* コンテナ */
         .container-main { max-width: 1800px; margin: 0 auto; background: white; padding: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); border-radius: 4px; position: relative; }
         .h-fixed-match { height: 110px !important; }
-
-        /* ボタン */
+        
         .btn { display: inline-block; font-weight: 400; text-align: center; vertical-align: middle; cursor: pointer; border: 1px solid transparent; padding: 0.375rem 0.75rem; font-size: 1rem; border-radius: 0.25rem; transition: all 0.15s; }
         .btn-sm { padding: 0.25rem 0.5rem; font-size: 0.875rem; }
         .btn-primary { color: #fff; background-color: #0d6efd; border-color: #0d6efd; }
         .btn-primary:hover { background-color: #0b5ed7; }
         .btn-secondary { color: #fff; background-color: #6c757d; border-color: #6c757d; }
-        .btn-secondary:hover { background-color: #5c636a; }
         .btn-success { color: #fff; background-color: #198754; border-color: #198754; }
-        .btn-success:hover { background-color: #157347; }
         .btn-outline-secondary { color: #6c757d; border-color: #6c757d; background: white; }
         .btn-outline-secondary:hover { color: #fff; background-color: #6c757d; }
         
         .form-control { display: block; width: 100%; padding: 0.375rem 0.75rem; font-size: 1rem; border: 1px solid #ced4da; border-radius: 0.25rem; }
-        textarea.form-control { resize: none; }
+        
+        /* テキストエリア: リサイズ許可 */
+        textarea.form-control { resize: vertical; min-height: 110px; }
         
         /* 日付入力 */
-        input[type="date"] { position: relative; padding-right: 30px; font-size: 18px; padding-top: 5px; padding-bottom: 5px; }
-        input[type="date"]::-webkit-calendar-picker-indicator { position: absolute; right: 5px; width: 24px; height: 24px; padding: 0; margin: 0; cursor: pointer; background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="%230d6efd" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>'); background-repeat: no-repeat; background-position: center; background-size: contain; color: transparent; opacity: 1; }
+        input[type="date"] { 
+            position: relative; padding-right: 30px; font-size: 18px; padding-top: 5px; padding-bottom: 5px; 
+        }
+        input[type="date"]::-webkit-calendar-picker-indicator {
+            position: absolute; right: 5px; width: 24px; height: 24px; padding: 0; margin: 0; cursor: pointer;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="%230d6efd" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>');
+            background-repeat: no-repeat; background-position: center; background-size: contain; color: transparent; opacity: 1;
+        }
 
         .alert { position: relative; padding: 1rem 1rem; margin-bottom: 1rem; border: 1px solid transparent; border-radius: 0.25rem; }
         .alert-warning { color: #664d03; background-color: #fff3cd; border-color: #ffecb5; }
         
-        /* グリッド */
+        /* Grid */
         .row { display: flex; flex-wrap: wrap; margin-right: -0.75rem; margin-left: -0.75rem; }
         .col-auto { flex: 0 0 auto; width: auto; padding: 0 0.75rem; }
         .col-md-3 { flex: 0 0 auto; width: 25%; padding: 0 0.75rem; }
         .col-md-4 { flex: 0 0 auto; width: 33.3333%; padding: 0 0.75rem; }
         .col-md-5 { flex: 0 0 auto; width: 41.6667%; padding: 0 0.75rem; }
         .col-md-6 { flex: 0 0 auto; width: 50%; padding: 0 0.75rem; }
+        .d-flex { display: flex; }
+        .gap-2 { gap: 0.5rem; } .gap-3 { gap: 1rem; }
+        .justify-content-between { justify-content: space-between; }
+        .align-items-center { align-items: center; }
+        .justify-content-center { justify-content: center; }
+        .flex-fill { flex: 1 1 auto; }
+        .text-center { text-align: center; } .text-end { text-align: right; }
+        .fw-bold { font-weight: bold; } .small { font-size: 0.875rem; }
+        .text-muted { color: #6c757d; } .text-primary { color: #0d6efd; }
+        .mt-2 { margin-top: 0.5rem; } .mb-2 { margin-bottom: 0.5rem; } .mb-3 { margin-bottom: 1rem; }
+        .border-top { border-top: 1px solid #dee2e6; } .border-bottom { border-bottom: 1px solid #dee2e6; }
 
-        /* タブ */
+        /* Tabs */
         .sticky-tabs { position: -webkit-sticky; position: sticky; top: 0; z-index: 900; background-color: #f4f6f9; padding-top: 10px; margin-bottom: 20px; border-bottom: 1px solid #dee2e6; }
         .nav-tabs { display: flex; list-style: none; padding-left: 0; margin-bottom: 0; border-bottom: 1px solid #dee2e6; }
         .nav-item { margin-bottom: -1px; }
@@ -84,30 +89,40 @@
         .tab-content > .tab-pane { display: none; }
         .tab-content > .tab-pane.show { display: block; }
 
-        /* テーブル */
+        /* Table */
         .table { width: 100%; margin-bottom: 1rem; vertical-align: top; border-color: #dee2e6; border-collapse: collapse; }
         .table-bordered th, .table-bordered td { border: 1px solid #dee2e6; }
         .table-custom { font-size: 15px; }
         .table-custom th { background-color: #2c3e50 !important; color: #ffffff !important; text-align: center; font-weight: 600; padding: 8px; white-space: nowrap; }
         .table-custom td { padding: 6px 8px; line-height: 1.3; vertical-align: middle; }
-        .table-fixed { table-layout: fixed; }
         .cell-nowrap { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .cell-wrap { word-wrap: break-word; overflow-wrap: break-word; }
-
-        /* ハイライト設定 */
         tr.row-none td { background-color: #ffffff !important; color: #333; }
         tr.row-alert td { background-color: #ffe6e6 !important; color: #b00; font-weight: bold; }
         tr.row-gray td { background-color: #f2f2f2 !important; color: #666; }
 
-        /* 参考文献 */
+        /* 列幅設定 */
+        .col-w-name { width: 20%; }
+        .col-w-class { width: 12%; }
+        .col-w-period { width: 16%; }
+        .col-w-calc { width: 25%; }
+        .col-w-reason { width: 22%; }
+        .col-w-ref { width: 5%; }
+
+        /* Others */
         .citation-list { padding-left: 0; list-style: none; margin-bottom: 0; }
         .citation-item { padding-left: 1.5em; text-indent: -1.5em; margin-bottom: 2px; font-size: 0.85rem; }
-
-        /* トップへ戻るボタン */
         #backToTop { display: none; position: fixed; bottom: 30px; right: 30px; z-index: 2000; font-size: 18px; border: none; background-color: #0d6efd; color: white; cursor: pointer; padding: 10px 15px; border-radius: 50%; box-shadow: 0 2px 5px rgba(0,0,0,0.3); opacity: 0.8; transition: opacity 0.3s; }
         #backToTop:hover { opacity: 1; background-color: #0b5ed7; }
+        
+        /* Edit Cell */
+        .edit-container { display: flex; align-items: center; width: 100%; position: relative; }
+        .editable-cell { flex-grow: 1; min-width: 0; font-weight: bold; border: 1px solid #ccc; padding: 2px 5px; border-radius: 3px; font-size: 1rem; background-color: #fff; min-height: 1.5em; line-height: 1.3; white-space: pre-wrap; word-wrap: break-word; overflow-wrap: break-word; word-break: break-all; }
+        .editable-cell:focus { border-color: #0d6efd; outline: 0; box-shadow: 0 0 0 0.2rem rgba(13,110,253,.25); }
+        .btn-quick-set { white-space: nowrap; font-size: 0.75rem; padding: 2px 6px; margin-left: 3px; cursor: pointer; }
+        .edit-mark { margin-left: 5px; font-size: 1.1rem; color: #dc3545; display: none; white-space: nowrap;}
 
-        /* 抗凝固プロトコル用スタイル */
+        /* Protocol CSS */
         #ac-wrapper .date-section { background-color: #e3f2fd; border: 1px solid #bbdefb; padding: 15px; border-radius: 8px; margin-bottom: 20px; text-align: center; }
         #ac-wrapper .selection-area { display: flex; gap: 30px; margin-bottom: 30px; }
         #ac-wrapper .step-box { flex: 1; background: #f9f9f9; padding: 20px; border-radius: 8px; border: 1px solid #ddd; height: 100%; }
@@ -133,16 +148,13 @@
         #ac-wrapper .table-container { overflow-x: auto; padding: 10px; }
         #ac-wrapper table.ref-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; line-height: 1.5; }
         #ac-wrapper table.ref-table th, #ac-wrapper table.ref-table td { border: 1px solid #888; padding: 6px 5px; vertical-align: top; }
-        #ac-wrapper .col-drug { width: 10%; }
-        #ac-wrapper .col-risk { width: 26%; }
-        #ac-wrapper .col-surg-sm { width: 10%; }
-        #ac-wrapper .col-surg-lg { width: 22%; }
+        #ac-wrapper .col-drug { width: 10%; } #ac-wrapper .col-risk { width: 26%; }
+        #ac-wrapper .col-surg-sm { width: 10%; } #ac-wrapper .col-surg-lg { width: 22%; }
         #ac-wrapper .bg-header { background-color: #343a40; color: #fff; text-align: center; }
         #ac-wrapper .bg-warfarin { background-color: #fff3cd; }
         #ac-wrapper .bg-doac { background-color: #d1e7dd; }
         #ac-wrapper .bg-platelet { background-color: #fff9c4; }
-        #ac-wrapper .txt-center { text-align: center; }
-        #ac-wrapper .txt-bold { font-weight: bold; }
+        #ac-wrapper .txt-center { text-align: center; } #ac-wrapper .txt-bold { font-weight: bold; }
         #ac-wrapper .no-wrap { white-space: nowrap; }
         #ac-wrapper .risk-list { font-size: 100%; color: #333; margin-top: 5px; text-align: left; line-height: 1.4; }
         #ac-wrapper .hanging-item { padding-left: 1em; text-indent: -1em; margin-bottom: 4px; }
@@ -150,6 +162,7 @@
         #ac-wrapper .drug-list { font-size: 0.85rem; font-weight: normal; margin-top: 5px; display: block; }
         #ac-wrapper .drug-item { display: block; }
         #ac-wrapper .bottom-notes { margin-top: 20px; padding: 15px; border-top: 2px solid #333; font-size: 0.85rem; }
+        
         #ac-wrapper table.note-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; margin-top: 10px; }
         #ac-wrapper table.note-table th, #ac-wrapper table.note-table td { border: 1px solid #888; padding: 6px 6px; vertical-align: middle; }
         #ac-wrapper table.note-table th { background-color: #e9ecef; text-align: center; }
@@ -157,8 +170,11 @@
         #ac-wrapper table.note-table th:nth-child(2), #ac-wrapper table.note-table td:nth-child(2) { width: 10%; text-align: center; }
         #ac-wrapper table.note-table tr:nth-child(3) td:nth-child(2) { text-align: left !important; vertical-align: top; }
 
-        /* スケジュール（休薬日）テーブル */
-        .timeline-container { max-width: 900px; margin: 20px auto; }
+        /* Timeline & Calendar */
+        .timeline-wrapper { display: flex; gap: 20px; align-items: flex-start; }
+        .timeline-container { flex: 0 0 450px; }
+        .calendar-container { flex: 1; min-width: 0; }
+        
         .timeline-table { width: 100%; border-collapse: collapse; font-size: 1.2rem; }
         .timeline-table th, .timeline-table td { border: 1px solid #ccc; padding: 12px 15px; vertical-align: middle; }
         .timeline-table th { background-color: #2c3e50; color: white; text-align: center; }
@@ -168,7 +184,19 @@
         .timeline-row-today .timeline-date-col { color: #dc3545; font-size: 1.3rem; }
         .timeline-row-today .timeline-content-col { font-weight: bold; color: #dc3545; }
 
-        /* メニューバーCSS */
+        /* Calendar Styles */
+        .cal-wrapper { display: flex; gap: 15px; flex-wrap: wrap; }
+        .cal-month { border: 1px solid #ddd; background: #fff; padding: 10px; border-radius: 4px; min-width: 250px; flex: 1; }
+        .cal-header { text-align: center; font-weight: bold; margin-bottom: 8px; font-size: 1.1rem; color: #2c3e50; }
+        .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; }
+        .cal-day-header { text-align: center; font-size: 0.85rem; font-weight: bold; background: #f0f0f0; padding: 4px 0; }
+        .cal-cell { border: 1px solid #eee; text-align: center; padding: 6px 2px; min-height: 40px; font-size: 0.9rem; position: relative; }
+        .cal-today { background-color: #ffe6e6; font-weight: bold; border-color: #dc3545; }
+        .cal-surgery { background-color: #dc3545; color: white; font-weight: bold; border-radius: 4px; }
+        .cal-mark { background-color: #d1e7dd; color: #0f5132; font-weight: bold; border-radius: 4px; cursor: help; }
+        .cal-mark-desc { font-size: 0.7rem; display: block; margin-top: 2px; line-height: 1; opacity: 0.8; }
+
+        /* Menu */
         #menu-toggle-btn { position: fixed; top: 15px; right: 20px; z-index: 9999; width: 50px; height: 50px; background-color: #333; border: 2px solid #fff; border-radius: 8px; cursor: pointer; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 6px; box-shadow: 0 4px 8px rgba(0,0,0,0.3); transition: all 0.3s; }
         #menu-toggle-btn:hover { background-color: #555; transform: scale(1.05); }
         .bar { width: 28px; height: 3px; background-color: white; border-radius: 2px; }
@@ -178,15 +206,7 @@
         .menu-link:hover { background-color: #0d6efd; color: white; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* 結果編集用のスタイル */
-        .edit-container { display: flex; align-items: center; width: 100%; position: relative; }
-        .editable-cell { flex-grow: 1; min-width: 0; font-weight: bold; border: 1px solid #ccc; padding: 2px 5px; border-radius: 3px; font-size: 1rem; background-color: #fff; min-height: 1.5em; line-height: 1.3; white-space: pre-wrap; word-wrap: break-word; overflow-wrap: break-word; word-break: break-all; }
-        .editable-cell:focus { border-color: #0d6efd; outline: 0; box-shadow: 0 0 0 0.2rem rgba(13,110,253,.25); }
-        .btn-quick-set { white-space: nowrap; font-size: 0.75rem; padding: 2px 6px; margin-left: 3px; cursor: pointer; }
-        .edit-mark { margin-left: 5px; font-size: 1.1rem; color: #dc3545; display: none; white-space: nowrap;}
         #printResultTable { display: none; }
-
-        /* 印刷設定 */
         @media print {
             body { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
             .no-print, .nav-tabs, .btn, .form-control, .alert, .modal, #backToTop, .sticky-tabs, #custom-hamburger-menu, #ie-warning { display: none !important; }
@@ -194,24 +214,29 @@
             .print-header { display: flex !important; justify-content: space-between; align-items: flex-end; margin-bottom: 10px; border-bottom: 2px solid #000; padding-bottom: 5px; }
             .tab-pane { display: none !important; }
             .tab-pane.show { display: block !important; }
-            tr.row-alert td { background-color: #ffe6e6 !important; -webkit-print-color-adjust: exact !important; }
-            tr.row-gray td { background-color: #f2f2f2 !important; -webkit-print-color-adjust: exact !important; }
-            #ac-wrapper .risk-high { background-color: #fff5f5 !important; -webkit-print-color-adjust: exact !important; }
-            #ac-wrapper .risk-low { background-color: #f0f9ff !important; -webkit-print-color-adjust: exact !important; }
-            .table-custom { font-size: 11pt !important; }
-            .table-custom th, .table-custom td { padding: 4px 5px !important; }
+            tr.row-alert td { background-color: #ffe6e6 !important; }
+            tr.row-gray td { background-color: #f2f2f2 !important; }
+            #ac-wrapper .risk-high { background-color: #fff5f5 !important; }
+            #ac-wrapper .risk-low { background-color: #f0f9ff !important; }
+            
+            .table-custom { font-size: 12px !important; }
+            .table-custom th, .table-custom td { padding: 3px 4px !important; }
+            
             #resultTable { display: none !important; }
             #printResultTable { display: table !important; width: 100%; }
             .edit-mark[style*="inline"] { display: inline !important; }
             .d-print-block { display: block !important; }
-            #printCitationList { column-count: 2; column-gap: 20px; font-size: 9pt; margin-top: 10px; }
+            
+            #printCitationList { column-count: 2; column-gap: 20px; font-size: 7pt; margin-top: 0; }
+            
             details { display: block !important; page-break-before: always; page-break-after: always; zoom: 0.8; }
             #ac-wrapper .selection-area, #ac-wrapper .date-section { display: none; }
             #ac-wrapper details summary { display: none; }
             .table-container { display: block; overflow: visible; }
             .ref-table { width: 100%; }
-            .timeline-container { margin: 0; max-width: 100%; }
-            .timeline-table { font-size: 14pt !important; }
+            .timeline-wrapper { display: block; }
+            .timeline-container, .calendar-container { width: 100%; margin-bottom: 20px; }
+            .timeline-table { font-size: 11pt !important; }
             @page { margin: 5mm; size: auto; }
         }
         .print-header { display: none; }
@@ -220,14 +245,46 @@
 <body>
 
 <div id="ie-warning">
-    ⚠️ 注意：現在 Internet Explorer でページを開いています。本ツールは Google Chrome での利用を推奨しています。一部機能が正しく動作しない可能性があります。
+    <div class="ie-modal-content">
+        <h2 style="color:#dc3545; margin-top:0; font-size:24px;">⚠️ Internet Explorer は非対応です</h2>
+        <p style="font-size:16px; line-height:1.6;">本ツールは IE では正しく動作しません。<br>以下のボタンを押して <strong>Microsoft Edge</strong> で正規のページを開いてください。</p>
+        <button class="ie-btn" onclick="jumpToEdge()">👉 ここを押して Edge で開く</button>
+        <hr style="margin: 25px 0; border: 0; border-top: 1px solid #eee;">
+        <p style="text-align:left; font-weight:bold; margin-bottom:5px;">Google Chrome をご利用の方：</p>
+        <div style="text-align:left; font-size:0.9em;">以下のURLをコピーして、Chromeのアドレスバーに貼り付けてください。</div>
+        <div class="ie-url-box" id="target-url-display"></div>
+        <button onclick="copyUrl()" style="padding:5px 10px; cursor:pointer;">URLをコピー</button>
+        <span id="copy-msg" style="color:green; display:none; margin-left:10px;">コピーしました！</span>
+    </div>
 </div>
+
 <script>
-    (function(){
-        var ua = window.navigator.userAgent;
-        var isIE = ua.indexOf('MSIE ') > -1 || ua.indexOf('Trident/') > -1;
-        if(isIE) { document.getElementById('ie-warning').style.display = 'block'; }
-    })();
+(function(){
+    var TARGET_URL = "http://10.5.71.73/new-portal/content/shishin_manual/manual/shinryogijutsubu/htm/yakuzaika/休薬確認ツール.html";
+    var ua = window.navigator.userAgent;
+    var isIE = ua.indexOf('MSIE ') > -1 || ua.indexOf('Trident/') > -1;
+    if(isIE) {
+        var modal = document.getElementById('ie-warning');
+        var urlDisplay = document.getElementById('target-url-display');
+        modal.style.display = 'flex';
+        urlDisplay.innerText = TARGET_URL;
+        var mainContainer = document.querySelector('.container-main');
+        if(mainContainer) mainContainer.style.display = 'none';
+        // window.location.href = "microsoft-edge:" + TARGET_URL; // 自動ジャンプ
+    }
+    window.jumpToEdge = function() { window.location.href = "microsoft-edge:" + TARGET_URL; };
+    window.copyUrl = function() {
+        var range = document.createRange();
+        range.selectNode(document.getElementById("target-url-display"));
+        window.getSelection().removeAllRanges();
+        window.getSelection().addRange(range);
+        document.execCommand("copy");
+        window.getSelection().removeAllRanges();
+        var msg = document.getElementById("copy-msg");
+        msg.style.display = "inline";
+        setTimeout(function(){ msg.style.display = "none"; }, 2000);
+    };
+})();
 </script>
 
 
@@ -235,7 +292,7 @@
 
 <div class="container-main">
     <div class="d-flex justify-content-between align-items-center no-print mb-3">
-        <h3 class="fw-bold m-0" style="font-size:18px;">🏥 術前休薬確認ツール Ver38.8</h3>
+        <h3 class="fw-bold m-0" style="font-size:18px;">🏥 術前休薬確認ツール Ver39.0</h3>
         <button class="btn btn-secondary btn-sm" onclick="window.location.reload()">リセット</button>
     </div>
 
@@ -245,19 +302,17 @@
 
     <div class="sticky-tabs no-print">
         <ul class="nav nav-tabs">
-            <li class="nav-item"><a class="nav-link active" onclick="switchTab('check-tab')">① 判定・リスト作成</a></li>
-            <li class="nav-item"><a class="nav-link" onclick="switchTab('schedule-tab')">② 休薬日確認</a></li>
-            <li class="nav-item"><a class="nav-link" id="master-tab-btn" onclick="switchTab('master-tab')">③ 薬剤一覧検索</a></li>
-            <li class="nav-item"><a class="nav-link" onclick="switchTab('anticoagulant-tab')">④ 抗凝固・抗血小板薬プロトコル</a></li>
+            <li class="nav-item"><a class="nav-link active" data-target="check-tab" onclick="switchTab('check-tab')">① 判定・リスト作成</a></li>
+            <li class="nav-item"><a class="nav-link" data-target="schedule-tab" onclick="switchTab('schedule-tab')">② 休薬日確認</a></li>
+            <li class="nav-item"><a class="nav-link" data-target="master-tab" id="master-tab-btn" onclick="switchTab('master-tab')">③ 薬剤一覧検索</a></li>
+            <li class="nav-item"><a class="nav-link" data-target="anticoagulant-tab" onclick="switchTab('anticoagulant-tab')">④ 抗凝固・抗血小板薬プロトコル</a></li>
         </ul>
     </div>
 
     <div class="tab-content">
         <div id="check-tab" class="tab-pane show active">
             <div class="row g-2 mb-3 no-print">
-                <div class="col-md-5">
-                    <textarea id="rawInput" class="form-control h-fixed-match" placeholder="電子カルテ等の薬剤リストをここに貼り付けてください"></textarea>
-                </div>
+                <div class="col-md-5"><textarea id="rawInput" class="form-control" placeholder="電子カルテ等の薬剤リストをここに貼り付けてください"></textarea></div>
                 <div class="col-md-4">
                     <label class="small fw-bold">手術予定日</label>
                     <input type="date" id="surgeryDate" class="form-control" onchange="processData()">
@@ -268,22 +323,36 @@
                     <button class="btn btn-success fw-bold flex-fill h-fixed-match" style="font-size:1.2rem;" onclick="window.print()">印 刷</button>
                 </div>
             </div>
-
             <div class="print-header">
                 <div style="font-size: 16pt; font-weight: bold;">術前休薬チェックシート <span style="font-size:0.6em; font-weight:normal;">(データ更新日：<span id="headerDateDisplay"></span>)</span></div>
                 <div id="printDateDisplay_Check" style="font-size: 12pt; font-weight: bold;">手術予定日：未設定</div>
             </div>
-            <div class="d-none d-print-block small border-bottom mb-2 pb-1">※本表は汎用薬を抜粋したものです。これ以外にも留意すべき薬剤があります。あくまでも一目安としてご利用ください。</div>
-
+            <div class="d-none d-print-block small border-bottom mb-2 pb-1">※本表は汎用薬を抜粋したものです。これ以外にも留意すべき薬剤があります。</div>
+            
             <table class="table table-bordered table-custom no-print-force" id="resultTable">
-                <thead><tr><th style="width: 20%;">薬剤名(判定)</th><th style="width: 12%;">分類</th><th style="width: 13%;">休薬期間</th><th class="col-calc" style="width: 25%;">推奨休薬期間・開始日</th><th style="width: 25%;">休薬理由</th><th style="width: 5%;">引用</th></tr></thead>
+                <thead><tr>
+                    <th class="col-w-name">薬剤名(判定)</th>
+                    <th class="col-w-class">分類</th>
+                    <th class="col-w-period">休薬期間</th>
+                    <th class="col-w-calc col-calc">推奨休薬期間・開始日</th>
+                    <th class="col-w-reason">休薬理由</th>
+                    <th class="col-w-ref">引用</th>
+                </tr></thead>
                 <tbody><tr><td colspan="6" class="text-center text-muted py-4">データを入力して「判定実行」を押してください</td></tr></tbody>
             </table>
+            
             <table class="table table-bordered table-custom" id="printResultTable">
-                <thead><tr><th style="width: 20%;">薬剤名(判定)</th><th style="width: 12%;">分類</th><th style="width: 13%;">休薬期間</th><th style="width: 25%;">推奨休薬期間・開始日</th><th style="width: 25%;">休薬理由</th><th style="width: 5%;">引用</th></tr></thead>
+                <thead><tr>
+                    <th class="col-w-name">薬剤名(判定)</th>
+                    <th class="col-w-class">分類</th>
+                    <th class="col-w-period">休薬期間</th>
+                    <th class="col-w-calc col-calc">推奨休薬期間・開始日</th>
+                    <th class="col-w-reason">休薬理由</th>
+                    <th class="col-w-ref">引用</th>
+                </tr></thead>
                 <tbody></tbody>
             </table>
-
+            
             <div class="mt-2 border-top pt-2 no-print"><small class="text-muted fw-bold">引用元:</small><div id="citationList" class="citation-list small text-muted"></div></div>
             <div class="mt-2 border-top pt-2 d-none d-print-block"><small class="fw-bold">【引用・根拠】</small><div id="printCitationList" class="citation-list"></div></div>
         </div>
@@ -316,16 +385,17 @@
                 <div class="date-section no-print" style="margin-top:20px;">
                     <label class="date-label">📅 手術予定日：</label>
                     <input type="date" id="ac-surgery-date" onchange="updateACDisplay()">
+                    <span style="font-size:0.9rem; margin-left:10px; color:#666;">（入力すると休薬開始日を自動計算します）</span>
                 </div>
                 <div class="selection-area no-print">
                     <div class="step-box">
                         <h2>1. 薬剤を選択</h2>
                         <div class="btn-group-custom" id="drug-buttons">
-                            <button class="custom-btn" onclick="selectAC('drug', 'warfarin', this)">ワーファリン</button>
-                            <button class="custom-btn" onclick="selectAC('drug', 'doac_pe', this)">DOAC：プラザキサ / エリキュース</button>
-                            <button class="custom-btn" onclick="selectAC('drug', 'doac_il', this)">DOAC：イグザレルト / リクシアナ</button>
-                            <button class="custom-btn" onclick="selectAC('drug', 'platelet_main', this)">抗血小板薬：バイアスピリン/パナルジン/クロピドグレル(プラビックス)/エフィエント</button>
-                            <button class="custom-btn" onclick="selectAC('drug', 'platelet_cilo', this)">抗血小板薬：シロスタゾール</button>
+                            <button class="custom-btn" onclick="setACDrug('warfarin', this)">ワーファリン</button>
+                            <button class="custom-btn" onclick="setACDrug('doac_pe', this)">DOAC：プラザキサ / エリキュース</button>
+                            <button class="custom-btn" onclick="setACDrug('doac_il', this)">DOAC：イグザレルト / リクシアナ</button>
+                            <button class="custom-btn" onclick="setACDrug('platelet_main', this)">抗血小板薬：バイアスピリン/パナルジン/クロピドグレル(プラビックス)/エフィエント</button>
+                            <button class="custom-btn" onclick="setACDrug('platelet_cilo', this)">抗血小板薬：シロスタゾール</button>
                         </div>
                     </div>
                     <div class="step-box">
@@ -364,7 +434,65 @@
                     </div>
                 </div>
                 <div class="text-end no-print mb-3 mt-3"><button class="btn btn-success" onclick="window.print()">このページを印刷</button></div>
-                <details open><summary>（参考）休薬・置換プロトコル全図表</summary><div class="table-container"><table class="ref-table"><thead><tr class="bg-header"><th class="col-drug">薬剤</th><th class="col-risk">リスク分類・定義</th><th class="col-surg-sm">抜歯・白内障</th><th class="col-surg-sm">体表の小手術<br>(圧迫が容易)</th><th class="col-surg-lg">圧迫困難な場合<br>大手術</th><th class="col-surg-lg">脊髄・硬膜外麻酔<br>カテーテル抜去</th></tr></thead><tbody><tr class="bg-warfarin"><td rowspan="2" class="txt-center txt-bold">ワルファリンカリウム<br><span style="font-size:0.75rem; font-weight:normal; color:#555;">(ワーファリン)</span></td><td><span class="txt-bold">高リスク病態</span><div class="risk-list"><div class="hanging-item">・心原性脳塞栓症の既往</div><div class="hanging-item">・弁膜症を合併する心房細動</div><div class="hanging-item">・弁膜症ではないが脳卒中の高リスク心房細動</div><div class="hanging-item">・機械弁置換術後の血栓塞栓症の既往</div><div class="hanging-item">・僧帽弁の機械弁置換術後</div><div class="hanging-item">・抗リン脂質抗体症候群</div><div class="hanging-item">・深部静脈血栓症・肺塞栓症</div></div></td><td rowspan="2" class="txt-center"><span class="txt-bold">継続下での施行推奨</span><br>(治療域内確認)<br><br>※カテーテル留置はやむを得ない場合、留置中はINR&lt;3.0</td><td rowspan="2" class="txt-center"><span class="txt-bold">休薬なし</span><br>(治療域内確認)</td><td><span class="txt-bold no-wrap">【休薬】3～5日</span><div class="heparin-note">中止翌日よりヘパリン置換</div></td><td><span class="txt-bold no-wrap">【休薬】5日</span><div class="heparin-note">中止翌日よりヘパリン置換</div><br>穿刺前: PT-INR&lt;1.2<br>抜去時: INR&lt;1.5</td></tr><tr class="bg-warfarin"><td><span class="txt-bold">低リスク病態</span><div class="risk-list"><div class="hanging-item">高リスク病態以外</div></div></td><td><span class="txt-bold no-wrap">【休薬】3～5日</span></td><td>穿刺前: PT-INR&lt;1.2を確認<br>(低リスク群では休薬なし)</td></tr><tr class="bg-doac"><td rowspan="2" class="txt-center txt-bold"><span class="no-wrap">DOAC</span><span class="drug-list no-wrap"><span class="drug-item">ダビガトラン<br><span style="font-size:0.7em;color:#666;font-weight:normal">(プラザキサ)</span></span><span class="drug-item">リバーロキサバン<br><span style="font-size:0.7em;color:#666;font-weight:normal">(イグザレルト)</span></span><span class="drug-item">アピキサバン<br><span style="font-size:0.7em;color:#666;font-weight:normal">(エリキュース)</span></span><span class="drug-item">エドキサバン<br><span style="font-size:0.7em;color:#666;font-weight:normal">(リクシアナ)</span></span></span></td><td><span class="txt-bold">高リスク病態</span><div class="risk-list"><div class="hanging-item">・心原性脳塞栓症の既往</div><div class="hanging-item">・弁膜症を合併する心房細動</div><div class="hanging-item">・弁膜症ではないが脳卒中の高リスク心房細動</div><div class="hanging-item">・機械弁置換術後の血栓塞栓症の既往</div><div class="hanging-item">・僧帽弁の機械弁置換術後</div><div class="hanging-item">・抗リン脂質抗体症候群</div><div class="hanging-item">・深部静脈血栓症・肺塞栓症</div></div></td><td rowspan="2" class="txt-center"><span class="txt-bold">継続下での施行推奨</span></td><td rowspan="2"><span class="txt-bold no-wrap">【休薬】1日</span><br><span style="font-size:0.75rem">※プラザキサ: 継続下で施行するが、trough aPTT>80秒の場合は緊急性のない手術は避ける</span></td><td><span class="txt-bold no-wrap">【休薬】</span><br>●プラザキサ・エリキュース: <span class="txt-bold">2日</span><br>●イグザレルト・リクシアナ: <span class="txt-bold">1日</span><div class="heparin-note">プラザキサ・エリキュース: 最終投与12時間後よりヘパリン置換<br>イグザレルト・リクシアナ: 最終投与24時間後よりヘパリン置換</div></td><td><span class="txt-bold no-wrap">【休薬】</span><br>●プラザキサ: 4日(CCr≧60)～5日(30&lt;CCr&lt;60)<br>●エリキュース: 3日<br>●イグザレルト・リクシアナ: 2日<div class="heparin-note">(置換開始時期は左記と同様)<br>抜去: APTT正常対照1.5倍未満</div></td></tr><tr class="bg-doac"><td><span class="txt-bold">低リスク病態</span><div class="risk-list"><div class="hanging-item">高リスク病態以外</div></div></td><td class="txt-center"><span class="txt-bold">同上</span></td><td>低リスク群では出血時に圧迫による止血対応が可能であることから、仮に休薬する場合には休薬期間を半減期の2倍程度に留めることが合理的である</td></tr><tr class="bg-platelet"><td rowspan="2" class="txt-center txt-bold"><span class="no-wrap">抗血小板薬</span><span class="drug-list no-wrap"><span class="drug-item">アスピリン<br><span style="font-size:0.7em;color:#666;font-weight:normal">(バイアスピリン)</span></span><span class="drug-item">チクロピジン<br><span style="font-size:0.7em;color:#666;font-weight:normal">(パナルジン)</span></span><span class="drug-item">クロピドグレル<br><span style="font-size:0.7em;color:#666;font-weight:normal">(プラビックス)</span></span><span class="drug-item">プラスグレル<br><span style="font-size:0.7em;color:#666;font-weight:normal">(エフィエント)</span></span><span class="drug-item">シロスタゾール<br><span style="font-size:0.7em;color:#666;font-weight:normal">(プレタール)</span></span></span></td><td><span class="txt-bold">高リスク病態</span><div class="risk-list"><div class="hanging-item">・冠動脈ステント留置後2ヶ月以内</div><div class="hanging-item">・冠動脈薬剤溶出性ステント留置後12ヶ月以内</div><div class="hanging-item">・脳血行再建術後2ヶ月以内</div><div class="hanging-item">・主幹動脈に50%以上の狭窄を伴う脳梗塞又は一過性脳虚血発作</div><div class="hanging-item">・最近発症した虚血性脳卒中又は一過性脳虚血発作</div><div class="hanging-item">・閉塞性動脈硬化症でFontaine3度(安静時疼痛)以上</div><div class="hanging-item">・頸動脈エコー/頭頸部MRIで休薬危険所見</div></div></td><td rowspan="2" class="txt-center"><span class="txt-bold">継続下での施行を原則とする</span></td><td rowspan="2" class="txt-center"><span class="txt-bold">継続下での施行を原則とする</span></td><td><span class="txt-bold no-wrap">【休薬】</span><br>●主要薬: <span class="txt-bold">7日</span><br>●シロスタゾール: <span class="txt-bold">2日</span><div class="heparin-note">中止翌日よりヘパリン置換</div></td><td><span class="txt-bold no-wrap">【休薬】</span><br>（同左）<div class="heparin-note">(必要に応じて、)<br>中止翌日よりヘパリン置換<br>抜去: APTT正常対照1.5倍未満</div></td></tr><tr class="bg-platelet"><td><span class="txt-bold">低リスク病態</span><div class="risk-list"><div class="hanging-item">高リスク病態以外</div></div></td><td><span class="txt-bold no-wrap">【休薬】同上</span><br><div class="heparin-note">場合によって、中止翌日よりヘパリン置換</div></td><td class="txt-center">低リスク群では休薬なし</td></tr></tbody></table><div style="text-align:right; margin-top:10px; color:#666;">出典：2013.06 薬事委員会作成 / 2018.10 改訂</div><div class="bottom-notes" style="margin-top:20px;"><div class="note-title" style="margin-bottom:10px;">ヘパリン置換を行った場合のヘパリン中止時期</div><table class="note-table"><thead><tr><th>対象薬剤</th><th>ヘパリンの種類</th><th>中止時期の目安</th></tr></thead><tbody><tr><td>ワーファリン</td><td>全般</td><td>再開1〜2日後（効果確認後）。<br><span style="font-size:0.85em; color:#666;">※再開5日目以降、至適INR回復を確認</span></td></tr><tr><td rowspan="2">DOAC</td><td><strong>持続静注</strong><br><span style="font-size:0.85em">（未分画ヘパリン）</span></td><td>DOAC投与開始時に中止</td></tr><tr><td><strong>皮下注</strong><br><span style="font-size:0.85em">（クレキサン等）</span></td><td><ul style="margin:0; padding-left:1.2em; line-height:1.4;"><li style="margin-bottom:4px;"><strong>プラザキサ</strong>：次回投与予定の2時間前</li><li style="margin-bottom:4px;"><strong>イグザレルト</strong>：次回投与予定の0〜2時間前</li><li><strong>エリキュース/リクシアナ</strong>：次回投与予定時間</li></ul><div style="font-size:0.85em; color:#d00; margin-top:5px;">※上記タイミングでDOACを開始し、ヘパリンは中止</div></td></tr><tr><td>抗血小板薬</td><td>全般</td><td>再開3〜4日後に中止</td></tr></tbody></table></div></div></details>
+                
+                <details open>
+                    <summary>（参考）休薬・置換プロトコル全図表</summary>
+                    <div class="table-container">
+                        <table class="ref-table">
+                            <thead><tr class="bg-header"><th class="col-drug">薬剤</th><th class="col-risk">リスク分類・定義</th><th class="col-surg-sm">抜歯・白内障</th><th class="col-surg-sm">体表の小手術<br>(圧迫が容易)</th><th class="col-surg-lg">圧迫困難な場合<br>大手術</th><th class="col-surg-lg">脊髄・硬膜外麻酔<br>カテーテル抜去</th></tr></thead>
+                            <tbody>
+                                <tr class="bg-warfarin"><td rowspan="2" class="txt-center txt-bold">ワルファリンカリウム<br><span style="font-size:0.75rem; font-weight:normal; color:#555;">(ワーファリン)</span></td><td><span class="txt-bold">高リスク病態</span><div class="risk-list"><div class="hanging-item">・心原性脳塞栓症の既往</div><div class="hanging-item">・弁膜症を合併する心房細動</div><div class="hanging-item">・弁膜症ではないが脳卒中の高リスク心房細動</div><div class="hanging-item">・機械弁置換術後の血栓塞栓症の既往</div><div class="hanging-item">・僧帽弁の機械弁置換術後</div><div class="hanging-item">・抗リン脂質抗体症候群</div><div class="hanging-item">・深部静脈血栓症・肺塞栓症</div></div></td><td rowspan="2" class="txt-center"><span class="txt-bold">継続下での施行推奨</span><br>(治療域内確認)<br><br>※カテーテル留置はやむを得ない場合、留置中はINR&lt;3.0</td><td rowspan="2" class="txt-center"><span class="txt-bold">休薬なし</span><br>(治療域内確認)</td><td><span class="txt-bold no-wrap">【休薬】3～5日</span><div class="heparin-note">中止翌日よりヘパリン置換</div></td><td><span class="txt-bold no-wrap">【休薬】5日</span><div class="heparin-note">中止翌日よりヘパリン置換</div><br>穿刺前: PT-INR&lt;1.2<br>抜去時: INR&lt;1.5</td></tr>
+                                <tr class="bg-warfarin"><td><span class="txt-bold">低リスク病態</span><div class="risk-list"><div class="hanging-item">高リスク病態以外</div></div></td><td><span class="txt-bold no-wrap">【休薬】3～5日</span></td><td>穿刺前: PT-INR&lt;1.2を確認<br>(低リスク群では休薬なし)</td></tr>
+                                <tr class="bg-doac"><td rowspan="2" class="txt-center txt-bold"><span class="no-wrap">DOAC</span><span class="drug-list no-wrap"><span class="drug-item">ダビガトラン<br><span style="font-size:0.7em;color:#666;font-weight:normal">(プラザキサ)</span></span><span class="drug-item">リバーロキサバン<br><span style="font-size:0.7em;color:#666;font-weight:normal">(イグザレルト)</span></span><span class="drug-item">アピキサバン<br><span style="font-size:0.7em;color:#666;font-weight:normal">(エリキュース)</span></span><span class="drug-item">エドキサバン<br><span style="font-size:0.7em;color:#666;font-weight:normal">(リクシアナ)</span></span></span></td><td><span class="txt-bold">高リスク病態</span><div class="risk-list"><div class="hanging-item">・心原性脳塞栓症の既往</div><div class="hanging-item">・弁膜症を合併する心房細動</div><div class="hanging-item">・弁膜症ではないが脳卒中の高リスク心房細動</div><div class="hanging-item">・機械弁置換術後の血栓塞栓症の既往</div><div class="hanging-item">・僧帽弁の機械弁置換術後</div><div class="hanging-item">・抗リン脂質抗体症候群</div><div class="hanging-item">・深部静脈血栓症・肺塞栓症</div></div></td><td rowspan="2" class="txt-center"><span class="txt-bold">継続下での施行推奨</span></td><td rowspan="2"><span class="txt-bold no-wrap">【休薬】1日</span><br><span style="font-size:0.75rem">※プラザキサ: 継続下で施行するが、trough aPTT>80秒の場合は緊急性のない手術は避ける</span></td><td><span class="txt-bold no-wrap">【休薬】</span><br>●プラザキサ・エリキュース: <span class="txt-bold">2日</span><br>●イグザレルト・リクシアナ: <span class="txt-bold">1日</span><div class="heparin-note">プラザキサ・エリキュース: 最終投与12時間後よりヘパリン置換<br>イグザレルト・リクシアナ: 最終投与24時間後よりヘパリン置換</div></td><td><span class="txt-bold no-wrap">【休薬】</span><br>●プラザキサ: 4日(CCr≧60)～5日(30&lt;CCr&lt;60)<br>●エリキュース: 3日<br>●イグザレルト・リクシアナ: 2日<div class="heparin-note">(置換開始時期は左記と同様)<br>抜去: APTT正常対照1.5倍未満</div></td></tr>
+                                <tr class="bg-doac"><td><span class="txt-bold">低リスク病態</span><div class="risk-list"><div class="hanging-item">高リスク病態以外</div></div></td><td class="txt-center"><span class="txt-bold">同上</span></td><td>低リスク群では出血時に圧迫による止血対応が可能であることから、仮に休薬する場合には休薬期間を半減期の2倍程度に留めることが合理的である</td></tr>
+                                <tr class="bg-platelet"><td rowspan="2" class="txt-center txt-bold"><span class="no-wrap">抗血小板薬</span><span class="drug-list no-wrap"><span class="drug-item">アスピリン<br><span style="font-size:0.7em;color:#666;font-weight:normal">(バイアスピリン)</span></span><span class="drug-item">チクロピジン<br><span style="font-size:0.7em;color:#666;font-weight:normal">(パナルジン)</span></span><span class="drug-item">クロピドグレル<br><span style="font-size:0.7em;color:#666;font-weight:normal">(プラビックス)</span></span><span class="drug-item">プラスグレル<br><span style="font-size:0.7em;color:#666;font-weight:normal">(エフィエント)</span></span><span class="drug-item">シロスタゾール<br><span style="font-size:0.7em;color:#666;font-weight:normal">(プレタール)</span></span></span></td><td><span class="txt-bold">高リスク病態</span><div class="risk-list"><div class="hanging-item">・冠動脈ステント留置後2ヶ月以内</div><div class="hanging-item">・冠動脈薬剤溶出性ステント留置後12ヶ月以内</div><div class="hanging-item">・脳血行再建術後2ヶ月以内</div><div class="hanging-item">・主幹動脈に50%以上の狭窄を伴う脳梗塞又は一過性脳虚血発作</div><div class="hanging-item">・最近発症した虚血性脳卒中又は一過性脳虚血発作</div><div class="hanging-item">・閉塞性動脈硬化症でFontaine3度(安静時疼痛)以上</div><div class="hanging-item">・頸動脈エコー/頭頸部MRIで休薬危険所見</div></div></td><td rowspan="2" class="txt-center"><span class="txt-bold">継続下での施行を原則とする</span></td><td rowspan="2" class="txt-center"><span class="txt-bold">継続下での施行を原則とする</span></td><td><span class="txt-bold no-wrap">【休薬】</span><br>●主要薬: <span class="txt-bold">7日</span><br>●シロスタゾール: <span class="txt-bold">2日</span><div class="heparin-note">中止翌日よりヘパリン置換</div></td><td><span class="txt-bold no-wrap">【休薬】</span><br>（同左）<div class="heparin-note">(必要に応じて、)<br>中止翌日よりヘパリン置換<br>抜去: APTT正常対照1.5倍未満</div></td></tr>
+                                <tr class="bg-platelet"><td><span class="txt-bold">低リスク病態</span><div class="risk-list"><div class="hanging-item">高リスク病態以外</div></div></td><td><span class="txt-bold no-wrap">【休薬】同上</span><br><div class="heparin-note">場合によって、中止翌日よりヘパリン置換</div></td><td class="txt-center">低リスク群では休薬なし</td></tr>
+                            </tbody>
+                        </table>
+                       
+                        <div class="bottom-notes" style="margin-top:20px;">
+                            <div class="note-title" style="margin-bottom:10px;">ヘパリン置換を行った場合のヘパリン中止時期</div>
+                            <table class="note-table">
+                                <thead>
+                                    <tr>
+                                        <th>対象薬剤</th>
+                                        <th>ヘパリンの種類</th>
+                                        <th>中止時期の目安</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>ワーファリン</td>
+                                        <td>全般</td>
+                                        <td>再開1〜2日後（効果確認後）。<br><span style="font-size:0.85em; color:#666;">※再開5日目以降、至適INR回復を確認</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td rowspan="2">DOAC</td>
+                                        <td><strong>持続静注</strong><br><span style="font-size:0.85em">（未分画ヘパリン）</span></td>
+                                        <td>DOAC投与開始時に中止</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>皮下注</strong><br><span style="font-size:0.85em">（クレキサン等）</span></td>
+                                        <td>
+                                            <ul style="margin:0; padding-left:1.2em; line-height:1.4;">
+                                                <li style="margin-bottom:4px;"><strong>プラザキサ</strong>：次回投与予定の2時間前</li>
+                                                <li style="margin-bottom:4px;"><strong>イグザレルト</strong>：次回投与予定の0〜2時間前</li>
+                                                <li><strong>エリキュース/リクシアナ</strong>：次回投与予定時間</li>
+                                            </ul>
+                                            <div style="font-size:0.85em; color:#d00; margin-top:5px;">※上記タイミングでDOACを開始し、ヘパリンは中止</div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>抗血小板薬</td>
+                                        <td>全般</td>
+                                        <td>再開3〜4日後に中止</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <div style="text-align:right; margin-top:10px; color:#666;">出典：2013.06 薬事委員会作成 / 2018.10 改訂</div>
+                        </div>
+                    </div>
+                </details>
             </div>
         </div>
     </div>
@@ -372,9 +500,9 @@
 
 <script>
 // --- VBAで書き換える変数 ---
-const DATA_UPDATED = "2026.02.04";
+const DATA_UPDATED = "2026.02.10";
 
-// VBA置換用マーカー
+// VBA置換用マーカー (マスタデータは変更なしのため省略、実際のコードには含めてください)
 const rawMasterData = `
 手術前中止薬一覧			本表は汎用薬を抜粋したものです。これ以外にも留意すべき薬剤があります。 あくまでも一目安としてご利用ください。			
 分類	分類2	商品名	一般名	休薬期間	引用	休薬理由
@@ -407,14 +535,14 @@ const rawMasterData = `
 降圧薬	β受容体遮断薬	ローガン	アモスラロール	継続を推奨	3	中止により反跳性高血圧､虚血症状､不整脈のリスク
 降圧薬	ACE阻害薬	セタプリル	アラセプリル	24時間前	3	術中血圧低下のリスク
 皮膚潰瘍治療剤	プロスタグランジンE1製剤	プロスタンディン軟膏	アルプロスタジル　アルファデクス	院内推奨期間なし	3	出血リスク
-骨粗鬆症治療薬	ビスホスホネート薬	フォサマック	アレンドロン酸	院内推奨期間なし	4	顎骨壊死のリスク
-骨粗鬆症治療薬	ビスホスホネート薬	ボナロン	アレンドロン酸	院内推奨期間なし	4	顎骨壊死のリスク
+骨粗鬆症治療薬	ビスホスホネート薬	フォサマック	アレンドロン酸	歯科手術２カ月前	4	顎骨壊死のリスク
+骨粗鬆症治療薬	ビスホスホネート薬	ボナロン	アレンドロン酸	歯科手術２カ月前	4	顎骨壊死のリスク
 糖尿病薬	DPP-4阻害薬	ネシーナ	アログリプチン	当日		インスリンによる血糖管理が望まれるため
 糖尿病薬	チアゾリジン薬/DPP-4阻害薬	リオベル	アログリプチン・ピオグリタゾン	当日		インスリンによる血糖管理が望まれるため
 糖尿病薬	ビグアナイド薬/DPP-4阻害薬	イニシンク	アログリプチン・メトホルミン	前後2日	9	乳酸アシドーシスのリスク
 降圧薬	β受容体遮断薬	アロチノロール	アロチノロール	継続を推奨	3	中止により反跳性高血圧､虚血症状､不整脈のリスク
 抗血小板薬	抗血小板薬	エパデール	イコサペント酸エチル	7日前	3	出血リスク
-骨粗鬆症治療薬	ビスホスホネート薬	ボンビバ	イバンドロン酸	院内推奨期間なし	4	顎骨壊死のリスク
+骨粗鬆症治療薬	ビスホスホネート薬	ボンビバ	イバンドロン酸	歯科手術２カ月前	4	顎骨壊死のリスク
 脳循環・代謝改善薬	脳循環・代謝改善薬	セロクラール	イフェンプロジル	2日前	3	出血リスク
 脳循環・代謝改善薬	脳循環・代謝改善薬	ケタス	イブジラスト	2日前	3	出血リスク
 抗アレルギー薬	アレルギー性結膜炎治療剤	ケタス点眼	イブジラスト	-	-	外用剤のため全身への影響は少ない
@@ -446,7 +574,7 @@ const rawMasterData = `
 女性ﾎﾙﾓﾝ薬	卵胞ホルモン	ホーリン	エストリオール	主治医判断	3	長期臥床で血栓リスク
 女性ﾎﾙﾓﾝ薬	卵胞ホルモン	プレマリン	エストロゲン	手術前４週	3	静脈血栓塞栓症のリスク
 抗リウマチ剤	TNFα／LTαレセプター製剤 	エンブレル	エタネルセプト	院内推奨期間なし	3	手術前後の臨床試験無し
-骨粗鬆症治療薬	ビスホスホネート薬	ダイドロネル	エチドロン酸	院内推奨期間なし	4	顎骨壊死のリスク
+骨粗鬆症治療薬	ビスホスホネート薬	ダイドロネル	エチドロン酸	歯科手術２カ月前	4	顎骨壊死のリスク
 抗凝固薬	抗凝固薬	リクシアナ	エドキサバン	院内プロトコル(別紙)参照	2	出血リスク
 降圧薬	ACE阻害薬	レニベース	エナラプリル	24時間前	3	術中血圧低下のリスク
 糖尿病薬	SGLT2阻害薬	ジャディアンス	エンパグリフロジン	糖尿病3日前/心不全当日	1,11	ケトアシドーシスのリスク
@@ -523,8 +651,8 @@ const rawMasterData = `
 緩下剤	蠕動運動促進	プルゼニド	センノシド	院内推奨期間なし	3	腹部手術後腹痛ﾘｽｸあり
 抗精神病薬	非定形型	ロドピン	ゾテピン	院内推奨期間なし	3	ロボトミー手術患者には慎重投与
 抗悪性腫瘍薬	ﾁﾛｼﾝｷﾅｰｾﾞ阻害薬	ネクサバール	ソラフェニブ	主治医判断	3	創傷治癒遅延のリスク
-骨粗鬆症治療薬	ビスホスホネート薬	ゾメタ	ゾレドロン酸	院内推奨期間なし	4	顎骨壊死のリスク
-骨粗鬆症治療薬	ビスホスホネート薬	リクラスト	ゾレドロン酸	院内推奨期間なし	4	顎骨壊死のリスク
+骨粗鬆症治療薬	ビスホスホネート薬	ゾメタ	ゾレドロン酸	歯科手術２カ月前	4	顎骨壊死のリスク
+骨粗鬆症治療薬	ビスホスホネート薬	リクラスト	ゾレドロン酸	歯科手術２カ月前	4	顎骨壊死のリスク
 緩下剤	蠕動運動促進	セチロ	ダイオウ・センナ配合剤	院内推奨期間なし	3	腹部手術後腹痛ﾘｽｸあり
 抗リウマチ剤	免疫抑制剤	プログラフ	タクロリムス	院内推奨期間なし	3	ﾘｳﾏﾁ患者で人工関節手術の臨床試験無し
 減感作療法薬	減感作療法	アシテアダニ	ダニアレルゲンエキス	院内推奨期間なし	3	口腔内術後吸収率変化のリスク
@@ -596,7 +724,7 @@ const rawMasterData = `
 骨粗鬆症治療薬	SERM	ビビアント	バゼドキシフェン	長期不動状態の３日前	3	静脈血栓塞栓症のリスク
 抗悪性腫瘍薬	ﾁﾛｼﾝｷﾅｰｾﾞ阻害薬	ヴォトリエント	パゾパニブ	主治医判断	3	創傷治癒遅延のリスク
 抗血栓性末梢循環改善剤	血漿フィブリノゲン濃度低下	デフィブラーゼ	バトロキソビン	院内推奨期間なし	3	出血リスク
-骨粗鬆症治療薬	ビスホスホネート薬	パミドロン酸	パミドロン酸	院内推奨期間なし	4	顎骨壊死のリスク
+骨粗鬆症治療薬	ビスホスホネート薬	パミドロン酸	パミドロン酸	歯科手術２カ月前	4	顎骨壊死のリスク
 抗精神病薬	SDA	インヴェガ	パリペリドンパルミチン酸エステル	院内推奨期間なし	3	白内障手術時､術中虹彩緊張低下症候群のリスク
 抗精神病薬	SDA	パリペリドン	パリペリドンパルミチン酸エステル	院内推奨期間なし	3	白内障手術時､術中虹彩緊張低下症候群のリスク
 降圧薬	ARB	ディオバン	バルサルタン	24時間前	3	術中血圧低下のリスク
@@ -669,7 +797,7 @@ const rawMasterData = `
 糖尿病薬	α-グリコシダーゼ阻害薬	セイブル	ミグリトール	当日		インスリンによる血糖管理が望まれるため
 糖尿病薬	速効型インスリン分泌促進薬	グルファスト	ミチグリニド	当日		インスリンによる血糖管理が望まれるため
 糖尿病薬	速効型ｲﾝｽﾘﾝ分泌促進薬/α-GI	グルベス	ミチグリニド・ボグリボース	当日		インスリンによる血糖管理が望まれるため
-骨粗鬆症治療薬	ビスホスホネート薬	ボノテオ	ミノドロン酸	院内推奨期間なし	4	顎骨壊死のリスク
+骨粗鬆症治療薬	ビスホスホネート薬	ボノテオ	ミノドロン酸	歯科手術２カ月前	4	顎骨壊死のリスク
 鎮痛薬	ｵﾋﾟｵｲﾄﾞ受容体刺激	メサペイン	メサドン	継続を推奨	3	尿路手術後排尿障害･消化管手術直後消化管運動抑制
 抗炎症薬	副腎皮質ホルモン	メドロール	メチルプレドニゾロン	院内推奨期間なし	3	周術期副腎不全に注意､ｽﾃﾛｲﾄﾞｶﾊﾞｰを検討
 褐色細胞腫治療薬	チロシン水酸化酵素阻害	デムサー	メチロシン	院内推奨期間なし	3	褐色細胞腫の手術､高血圧･不整脈のリスク
@@ -701,8 +829,8 @@ const rawMasterData = `
 降圧薬	ACE阻害薬	ゼストリル	リシノプリル	24時間前	3	術中血圧低下のリスク
 降圧薬	ACE阻害薬	ロンゲス	リシノプリル	24時間前	3	術中血圧低下のリスク
 抗精神病薬	SDA	リスパダール	リスペリドン	院内推奨期間なし	3	白内障手術時､術中虹彩緊張低下症候群のリスク
-骨粗鬆症治療薬	ビスホスホネート薬	アクトネル	リセドロン酸	院内推奨期間なし	4	顎骨壊死のリスク
-骨粗鬆症治療薬	ビスホスホネート薬	ベネット	リセドロン酸	院内推奨期間なし	4	顎骨壊死のリスク
+骨粗鬆症治療薬	ビスホスホネート薬	アクトネル	リセドロン酸	歯科手術２カ月前	4	顎骨壊死のリスク
+骨粗鬆症治療薬	ビスホスホネート薬	ベネット	リセドロン酸	歯科手術２カ月前	4	顎骨壊死のリスク
 糖尿病薬	DPP-4阻害薬	トラゼンタ	リナグリプチン	当日		インスリンによる血糖管理が望まれるため
 抗凝固薬	抗凝固薬	イグザレルト	リバーロキサバン	院内プロトコル(別紙)参照	2	出血リスク
 血管拡張薬	血管拡張薬	オパルモン	リマプロスト	1日前	3	出血リスク
@@ -752,7 +880,7 @@ const rawMasterData = `
 
 // --- 定数定義 ---
 const EXTERNAL_KEYWORDS = ["点眼", "眼軟膏", "軟膏", "クリーム", "ゲル", "ローション", "パップ", "貼付", "テープ", "坐剤", "坐薬", "吸入", "トローチ", "うがい", "スプレー"];
-// 内服薬の剤形 (削除対象) - 今回の修正でcleanDrugNameでは使わなくなりますが、定義は残しておきます
+const EXTERNAL_KEYWORDS_OVERRIDE = EXTERNAL_KEYWORDS;
 const ORAL_FORMS = ["口腔内崩壊錠", "ドライシロップ", "チュアブル錠", "配合顆粒", "軟カプセル", "硬カプセル", "塩酸塩錠", "硫酸塩錠", "リン酸塩錠", "マレイン酸塩錠", "クエン酸塩錠", "フマル酸塩錠", "ナトリウム錠", "カリウム錠", "カルシウム錠", "塩酸塩カプセル", "硫酸塩カプセル", "リン酸塩カプセル", "マレイン酸塩カプセル", "ナトリウムカプセル", "配合錠", "ＯＤ錠", "カプセル", "顆粒剤", "細粒剤", "シロップ", "顆粒", "細粒", "散剤", "錠", "散", "塩酸塩", "硫酸塩", "リン酸塩", "マレイン酸塩", "クエン酸塩", "フマル酸塩", "ナトリウム", "カリウム", "カルシウム"];
 const NG_KEYWORDS = ["薬効名称", "院内", "分１", "分２", "分３", "分４", "分５", "１日", "1日", "回", "食後", "食前", "朝", "昼", "夕", "眠前", "Rp", "Ｒｐ", "RP", "rp"];
 
@@ -788,7 +916,7 @@ const DATE_RULES = {
     "主治医判断": { text: "-", alert: false }
 };
 
-// AC Protocol Matrix
+// AC Protocol Matrix (省略、変更なし)
 const AC_MATRIX = {
     "warfarin_dental": { h: "継続下での施行推奨<br><span style='font-size:0.9rem'>（治療域内確認）</span>", l: "継続下での施行推奨<br><span style='font-size:0.9rem'>（治療域内確認）</span>", hd: 0, ld: 0 },
     "warfarin_minor":  { h: "休薬なし<br><span style='font-size:0.9rem'>（治療域内確認）</span>", l: "休薬なし<br><span style='font-size:0.9rem'>（治療域内確認）</span>", hd: 0, ld: 0 },
@@ -830,8 +958,10 @@ const DRUG_DISPLAY_NAMES = {
     'platelet_cilo': 'シロスタゾール <span style="font-size:0.8rem; font-weight:normal; color:#555;">(商品名: プレタール)</span>'
 };
 
-// --- 関数群 ---
+// グローバル変数
 let masterData = [];
+let currentDrug = null;
+let currentSurgery = null;
 
 function init() {
     document.getElementById("headerDateDisplay").textContent = DATA_UPDATED;
@@ -901,7 +1031,6 @@ function normalizeString(str) {
     s = s.replace(/[Ａ-Ｚａ-ｚ０-９]/g, s => String.fromCharCode(s.charCodeAt(0) - 0xFEE0));
     s = s.replace(/　/g, " ");
     s = s.replace(/[\u3041-\u3096]/g, m => String.fromCharCode(m.charCodeAt(0) + 0x60));
-    // ドットの正規化を追加
     s = s.replace(/．/g, '.');
     const kanaMap = {
         'ｶﾞ':'ガ', 'ｷﾞ':'ギ', 'ｸﾞ':'グ', 'ｹﾞ':'ゲ', 'ｺﾞ':'ゴ', 'ｻﾞ':'ザ', 'ｼﾞ':'ジ', 'ｽﾞ':'ズ', 'ｾﾞ':'ゼ', 'ｿﾞ':'ゾ',
@@ -926,15 +1055,10 @@ function cleanDrugName(rawText) {
     const splitMatch = name.match(/^([^\s　「]+)/);
     if(splitMatch) name = splitMatch[1];
     
-    // 【Ver38.8 修正】 ドット削除処理を削除し、★等の削除のみにする
     name = name.replace("★", "").replace("（医療用）", "");
-    
-    // 【Ver38.8 修正】 スラッシュ削除を追加
     name = name.replace(/[／\/]/g, "");
     
     name = name.replace(/[A-Za-z0-9]/g, s => String.fromCharCode(s.charCodeAt(0) + 0xFEE0));
-    
-    // 数字＋単位(mg, g, mL, μg) のみを削除する正規表現 (小数点対応)
     name = name.replace(/[0-9０-９]+(\.[0-9０-９]+)?(mg|g|ｍｇ|ｇ|mL|ｍＬ|μg|ｍL|mcg)/gi, "");
 
     return name.trim();
@@ -994,8 +1118,10 @@ function processData() {
     const hasDate = !!surgeryDateStr;
     const dateText = hasDate ? new Date(surgeryDateStr).toLocaleDateString('ja-JP', {year:'numeric', month:'2-digit', day:'2-digit'}) : "未設定";
     document.getElementById("printDateDisplay_Check").textContent = "手術予定日：" + dateText;
-    const colCalc = document.querySelector(".col-calc");
-    if(colCalc) colCalc.style.display = hasDate ? "" : "none";
+    
+    document.querySelectorAll(".col-calc").forEach(el => {
+        el.style.display = hasDate ? "" : "none";
+    });
 
     const lines = rawInput.split("\n");
     let hasRp = false, hasIndent = false;
@@ -1031,13 +1157,11 @@ function processData() {
 
             if (bestMatch) {
                 let isExternalOverride = false;
-                for (const kw of EXTERNAL_KEYWORDS) {
+                for (const kw of EXTERNAL_KEYWORDS_OVERRIDE) {
                     if (line.includes(kw)) {
                         const inBrand = bestMatch.brandName.includes(kw);
                         const inGeneric = bestMatch.genericName.includes(kw);
-                        if (!inBrand && !inGeneric) {
-                            isExternalOverride = true;
-                        }
+                        if (!inBrand && !inGeneric) { isExternalOverride = true; }
                         break;
                     }
                 }
@@ -1054,7 +1178,6 @@ function processData() {
             }
         }
     });
-
     renderResults(results, hasDate, surgeryDateStr);
 }
 
@@ -1112,10 +1235,22 @@ function renderResults(results, hasDate, sDateStr) {
                     <button class="btn btn-outline-secondary btn-quick-set no-print" onclick="resetPeriod(this)">↺</button>
                     <span class="edit-mark">📝</span>
                 </div>`;
-            const printHtml = `<span id="p-cell-${idx}" data-original="${calcText}" style="white-space:pre-wrap; word-break:break-all;">${calcText}</span><span class="edit-mark edit-mark-print" style="display:none;margin-left:5px;color:#dc3545;">📝</span>`;
+            
+            let printCalcText = calcText;
+            if (printCalcText.includes("糖尿病3日前/心不全当日")) {
+                printCalcText = printCalcText.replace("糖尿病3日前/心不全当日", "糖尿病3日前<br>心不全当日");
+            }
+            
+            const printHtml = `<span id="p-cell-${idx}" data-original="${calcText}" style="white-space:pre-wrap; word-break:break-all;">${printCalcText}</span><span class="edit-mark edit-mark-print" style="display:none;margin-left:5px;color:#dc3545;">📝</span>`;
 
             trS.innerHTML = `<td class="fw-bold">${r.name}</td><td class="small">${m.type}</td><td class="small">${m.period}</td><td class="fw-bold" style="${hasDate?'':'display:none;'}">${editHtml}</td><td class="small">${m.reason}</td><td class="small text-center">${m.ref}</td>`;
-            trP.innerHTML = `<td class="fw-bold">${r.name}</td><td class="small">${m.type}</td><td class="small">${m.period}</td><td class="fw-bold" style="${hasDate?'':'display:none;'}">${printHtml}</td><td class="small">${m.reason}</td><td class="small text-center">${m.ref}</td>`;
+            
+            let printPeriod = m.period;
+            if (printPeriod.includes("糖尿病3日前/心不全当日")) {
+                printPeriod = printPeriod.replace("糖尿病3日前/心不全当日", "糖尿病3日前<br>心不全当日");
+            }
+            
+            trP.innerHTML = `<td class="fw-bold">${r.name}</td><td class="small">${m.type}</td><td class="small">${printPeriod}</td><td class="fw-bold" style="${hasDate?'':'display:none;'}">${printHtml}</td><td class="small">${m.reason}</td><td class="small text-center">${m.ref}</td>`;
         } else {
             const emptyHtml = `<td>${r.name}</td><td class="small text-muted">-</td><td class="small text-muted">指定なし</td><td class="small text-muted" style="${hasDate?'':'display:none;'}">-</td><td class="small text-muted">指定なし</td><td class="small text-muted">-</td>`;
             trS.innerHTML = emptyHtml;
@@ -1133,11 +1268,185 @@ function selectAC(type, val, btn) {
     btn.classList.add('selected');
     updateACDisplay();
 }
+function setACDrug(type, btn) { selectAC('drug', type, btn); }
+function setACSurgery(type, btn) { selectAC('surgery', type, btn); }
 
+function updateACDisplay() {
+    if(!currentDrug || !currentSurgery) return;
+    document.getElementById('ac-result-area').style.display = 'block';
+
+    const titleEl = document.querySelector('#ac-result-area h3');
+    const drugNameHtml = DRUG_DISPLAY_NAMES[currentDrug] || "";
+    titleEl.innerHTML = `推奨される対応（病態リスク別）<div style="margin-top:5px; font-size:0.9rem; font-weight:normal;">対象薬剤: ${drugNameHtml}</div>`;
+
+    const key = currentDrug + "_" + currentSurgery;
+    const data = AC_MATRIX[key];
+    
+    document.getElementById('high-risk-action').innerHTML = data.h;
+    document.getElementById('low-risk-action').innerHTML = data.l;
+
+    let defKey = currentDrug.startsWith('doac') ? 'doac' : (currentDrug.startsWith('platelet') ? 'platelet' : 'warfarin');
+    document.getElementById('high-risk-def').innerHTML = PROTOCOL_DEFS[defKey].high;
+    document.getElementById('low-risk-def').innerHTML = PROTOCOL_DEFS[defKey].low;
+    document.getElementById('footer-text').innerHTML = FOOTER_TEXTS[defKey];
+    document.getElementById('footer-note').style.display = 'block';
+
+    const sVal = document.getElementById('ac-surgery-date').value;
+    const hSch = document.getElementById('high-schedule');
+    const lSch = document.getElementById('low-schedule');
+    
+    if(sVal) {
+        hSch.style.display = 'block'; lSch.style.display = 'block';
+        hSch.innerHTML = getAcScheduleText(data.hd, sVal);
+        lSch.innerHTML = getAcScheduleText(data.ld, sVal);
+    } else {
+        hSch.style.display = 'none'; lSch.style.display = 'none';
+    }
+    document.getElementById('ac-result-area').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function getAcScheduleText(days, sDateVal) {
+    if(!sDateVal || days === 0) return "";
+    const sDate = new Date(sDateVal);
+    const fmt = d => (d.getMonth() + 1) + '/' + d.getDate();
+    const add = n => { const x = new Date(sDate); x.setDate(x.getDate() - n); return x; };
+    
+    if (Array.isArray(days)) {
+        return `${fmt(add(days[1]))}～${fmt(add(days[0]))}から休薬`;
+    } else {
+        return `${fmt(add(days))}から休薬`;
+    }
+}
+
+// -----------------------------------------------------------
+// Schedule & Calendar Functions
+// -----------------------------------------------------------
+
+function calcScheduleTab() {
+    const dStr = document.getElementById("scheduleDateInput").value;
+    const area = document.getElementById("scheduleResultArea");
+    if (!dStr) { area.innerHTML = ""; return; }
+    
+    document.getElementById("printScheduleDateDisplay").textContent = "手術予定日：" + new Date(dStr).toLocaleDateString('ja-JP');
+    
+    const sDate = new Date(dStr);
+    const fmt = d => `${d.getMonth()+1}/${d.getDate()} (${["日","月","火","水","木","金","土"][d.getDay()]})`;
+    const add = n => { const x = new Date(sDate); x.setDate(x.getDate() + n); return x; };
+    
+    // 2ヶ月前計算用
+    const addMonth = m => {
+        const x = new Date(sDate);
+        x.setMonth(x.getMonth() + m);
+        return x;
+    };
+
+    const patterns = [
+        { l: "2ヶ月前", func: () => addMonth(-2) },
+        { l: "6週間前", d: -42 },
+        { l: "4週間前", d: -28 },
+        { l: "2週間前", d: -14 },
+        { l: "1週間前", d: -7 }, 
+        { l: "7日前", d: -7 }, 
+        { l: "5日以上前", d: -5 },
+        { l: "3日前", d: -3 }, 
+        { l: "2日前", d: -2 }, 
+        { l: "前日(1日前)", d: -1 },
+        { l: "手術当日", d: 0 }, 
+        { l: "術後2週", d: 14 }
+    ];
+    
+    let highlightDates = {}; // Calendar highlights (dateStr -> {class, label})
+    
+    let h = `<div class="timeline-wrapper">`;
+    
+    // List Column
+    h += `<div class="timeline-container"><table class="timeline-table"><thead><tr><th class="timeline-date-col">日付</th><th class="timeline-content-col">休薬・対応</th></tr></thead><tbody>`;
+    patterns.forEach(p => {
+        let dateObj;
+        if (p.func) {
+            dateObj = p.func();
+        } else {
+            dateObj = add(p.d);
+        }
+        
+        let dateStr = `${dateObj.getFullYear()}-${dateObj.getMonth()+1}-${dateObj.getDate()}`;
+        if(p.d === 0) {
+            highlightDates[dateStr] = { class: "cal-surgery", label: "手術" };
+        } else {
+            highlightDates[dateStr] = { class: "cal-mark", label: p.l.replace("手術前","").replace("前","") };
+        }
+
+        h += `<tr class="${p.d===0?'timeline-row-today':''}"><td class="timeline-date-col">${fmt(dateObj)}</td><td class="timeline-content-col">${p.l}</td></tr>`;
+    });
+    h += `</tbody></table></div>`;
+    
+    // Calendar Column
+    h += `<div class="calendar-container"><div class="cal-wrapper">`;
+    h += generateCalendarHTML(new Date(sDate.getFullYear(), sDate.getMonth() - 1, 1), highlightDates); // Previous month
+    h += generateCalendarHTML(new Date(sDate.getFullYear(), sDate.getMonth(), 1), highlightDates);     // Surgery month
+    h += `</div></div>`;
+    
+    h += `</div>`; // Close timeline-wrapper
+    
+    area.innerHTML = h;
+}
+
+function generateCalendarHTML(baseDate, highlights) {
+    const year = baseDate.getFullYear();
+    const month = baseDate.getMonth();
+    const firstDay = new Date(year, month, 1).getDay();
+    const lastDate = new Date(year, month + 1, 0).getDate();
+    
+    let html = `<div class="cal-month"><div class="cal-header">${year}年 ${month+1}月</div>`;
+    html += `<div class="cal-grid">`;
+    
+    const days = ["日","月","火","水","木","金","土"];
+    days.forEach(d => html += `<div class="cal-day-header">${d}</div>`);
+    
+    for(let i=0; i<firstDay; i++) { html += `<div class="cal-cell"></div>`; }
+    
+    for(let d=1; d<=lastDate; d++) {
+        const currentKey = `${year}-${month+1}-${d}`;
+        const hl = highlights[currentKey];
+        let className = "cal-cell";
+        let content = d;
+        
+        if(hl) {
+            className += ` ${hl.class}`;
+            content += `<span class="cal-mark-desc">${hl.label}</span>`;
+        }
+        
+        html += `<div class="${className}">${content}</div>`;
+    }
+    
+    html += `</div></div>`; // Close grid & cal-month
+    return html;
+}
+
+// 薬剤一覧検索
+function filterMasterTable() {
+    const txt = document.getElementById("masterSearch").value;
+    const tbody = document.getElementById("masterTableBody");
+    tbody.innerHTML = "";
+    const norm = normalizeString(txt);
+    const kws = norm.trim().split(" ").filter(k=>k);
+    
+    masterData.forEach(row => {
+        if (kws.length === 0 || kws.some(k => row.normalizedSearchStr.includes(k))) {
+            const tr = document.createElement("tr");
+            tr.innerHTML = `<td class="cell-nowrap">${row.type}</td><td class="fw-bold text-primary cell-nowrap">${row.brandName}</td><td class="cell-wrap">${row.genericName}</td><td>${row.period}</td><td class="small">${row.reason}</td>`;
+            tbody.appendChild(tr);
+        }
+    });
+}
+
+// タブ切り替え
 function switchTab(tabId) {
     document.querySelectorAll('.nav-link').forEach(el => el.classList.remove('active'));
     document.querySelectorAll('.nav-link').forEach(el => {
-        if(el.getAttribute('onclick').includes(tabId)) el.classList.add('active');
+        if(el.getAttribute('data-target') === tabId || el.getAttribute('onclick').includes(tabId)) {
+            el.classList.add('active');
+        }
     });
     
     document.querySelectorAll('.tab-pane').forEach(el => {
@@ -1153,10 +1462,8 @@ function switchTab(tabId) {
     if(tabId === 'master-tab') filterMasterTable();
 }
 
-function toggleMenu() {
-    var menu = document.getElementById('menu-content');
-    menu.classList.toggle('active');
-}
+function toggleMenu() { document.getElementById('menu-content').classList.toggle('active'); }
+window.onscroll = function() { document.getElementById("backToTop").style.display = (document.body.scrollTop > 200 || document.documentElement.scrollTop > 200) ? "block" : "none"; };
 
 window.onload = init;
 </script>
