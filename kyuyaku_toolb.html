@@ -306,6 +306,7 @@
     </div>
 
     <div class="tab-content">
+        <!-- Tab 1: Check -->
         <div id="check-tab" class="tab-pane show active">
             <div class="row g-2 mb-3 no-print">
                 <div class="col-md-5">
@@ -355,6 +356,7 @@
             <div class="mt-2 border-top pt-2 d-none d-print-block"><small class="fw-bold">【引用・根拠】</small><div id="printCitationList" class="citation-list"></div></div>
         </div>
 
+        <!-- Tab 2: Schedule -->
         <div id="schedule-tab" class="tab-pane">
             <div class="print-header">
                 <div style="font-size: 16pt; font-weight: bold;">休薬日確認カレンダー</div>
@@ -368,6 +370,7 @@
             <div id="scheduleResultArea" class="table-custom"></div>
         </div>
 
+        <!-- Tab 3: Master -->
         <div id="master-tab" class="tab-pane">
             <div class="mb-2"><input type="text" id="masterSearch" class="form-control" placeholder="薬剤名を入力（ひらがな・カナ検索可、スペース区切りで複数可）" onkeyup="filterMasterTable()"></div>
             <div style="height: 650px; overflow-y: auto;">
@@ -378,6 +381,7 @@
             </div>
         </div>
 
+        <!-- Tab 4: Protocol -->
         <div id="anticoagulant-tab" class="tab-pane">
             <div id="ac-wrapper">
                 <div class="date-section no-print" style="margin-top:20px;">
@@ -494,12 +498,14 @@
             </div>
         </div>
 
+        <!-- Tab 5: Admin (New in Ver40) -->
         <div id="admin-tab" class="tab-pane">
             <div class="alert alert-primary mb-4 no-print">
                 <h4 class="fw-bold m-0" style="color:#084298;">⚙️ データベース管理・新規薬剤抽出</h4>
                 <p class="m-0 mt-2 small">JUST Calcからデータを貼り付けて、新規薬剤の抽出やシステムの更新を行います。<br>※更新を行った場合、新しいHTMLファイルがダウンロードされますので、既存のファイルに上書きして運用してください。</p>
             </div>
 
+            <!-- 抽出機能 -->
             <div class="card mb-4 no-print">
                 <h5 class="fw-bold mb-3" style="color:#2c3e50;">■ 新規候補薬剤の抽出</h5>
                 <div class="mb-2">
@@ -527,6 +533,7 @@
                 </table>
             </div>
 
+            <!-- 更新機能 -->
             <div class="card no-print">
                 <h5 class="fw-bold mb-3" style="color:#2c3e50;">■ ツールの更新（新しいHTMLファイルをダウンロード）</h5>
                 <div class="row g-3 mb-3">
@@ -558,7 +565,7 @@
 
 <script>
 // --- 自己更新用変数マーカー ---
-const DATA_UPDATED = "Ver40.0 (2026.06.02)";
+const DATA_UPDATED = "Ver40.0 (2026.06.03)";
 
 const rawMasterData = `
 分類	分類2	商品名	一般名	休薬期間	引用	休薬理由
@@ -974,7 +981,7 @@ const AC_MATRIX = {
     "doac_pe_spinal": { h: "【休薬期間】<br>プラザキサ 4日(CrCl≧60)〜5日(30<CrCl<60)<br>エリキュース 3日<br><div class='bridge-info'>プラザキサ・エリキュース：最終投与12時間後よりヘパリン置換</div>", l: "低リスク群では出血時に圧迫による止血対応が可能であることから、仮に休薬する場合には休薬期間を半減期の2倍程度に留めることが合理的である", hd: [3,5], ld: 0 },
     "doac_il_dental": { h: "継続下での施行推奨", l: "継続下での施行推奨", hd: 0, ld: 0 },
     "doac_il_minor":  { h: "【休薬期間】1日", l: "【休薬期間】1日", hd: 1, ld: 1 },
-    "doac_il_major":  { h: "【休薬期間】1日<br><div class='bridge-info'>イグザレルト・リクシアナ：最終投与24時間後よりヘパリン置換</div>", l: "【休薬期間】1日", hd: 1, ld: 1 },
+    "doac_il_major":  { h: "【休薬期間】1日<br><div class='bridge-info'>イグザレルト・リクシアナ：最終投与12時間後よりヘパリン置換</div>", l: "【休薬期間】1日", hd: 1, ld: 1 },
     "doac_il_spinal": { h: "【休薬期間】2日<br><div class='bridge-info'>イグザレルト・リクシアナ：最終投与24時間後よりヘパリン置換</div>", l: "低リスク群では出血時に圧迫による止血対応が可能であることから、仮に休薬する場合には休薬期間を半減期の2倍程度に留めることが合理的である", hd: 2, ld: 0 },
     "platelet_main_dental": { h: "継続下での施行を原則とする", l: "継続下での施行を原則とする", hd: 0, ld: 0 },
     "platelet_main_minor":  { h: "継続下での施行を原則とする", l: "継続下での施行を原則とする", hd: 0, ld: 0 },
@@ -1766,12 +1773,12 @@ function downloadNewVersion() {
         const h3Reg = /<h3 class="fw-bold m-0" style="font-size:18px;">🏥 術前休薬確認ツール Ver[^<]*<\/h3>/g;
         html = html.replace(h3Reg, `<h3 class="fw-bold m-0" style="font-size:18px;">🏥 術前休薬確認ツール Ver${newVer}</h3>`);
         
-        // Blobでダウンロード
+        // Blobでダウンロード (ファイル名を kyuyaku_tool.html に固定)
         const blob = new Blob([html], {type: "text/html;charset=utf-8"});
         const url = URL.createObjectURL(blob);
         const a = document.createElement("a");
         a.href = url;
-        a.download = `休薬確認ツール_Ver${newVer}.html`;
+        a.download = `kyuyaku_tool.html`;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
