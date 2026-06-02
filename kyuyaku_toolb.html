@@ -180,20 +180,10 @@
         .cal-mark { background-color: #d1e7dd; color: #0f5132; font-weight: bold; border-radius: 4px; cursor: help; }
         .cal-mark-desc { font-size: 0.7rem; display: block; margin-top: 2px; line-height: 1; opacity: 0.8; }
 
-        /* Menu */
-        #menu-toggle-btn { position: fixed; top: 15px; right: 20px; z-index: 9999; width: 50px; height: 50px; background-color: #333; border: 2px solid #fff; border-radius: 8px; cursor: pointer; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 6px; box-shadow: 0 4px 8px rgba(0,0,0,0.3); transition: all 0.3s; }
-        #menu-toggle-btn:hover { background-color: #555; transform: scale(1.05); }
-        .bar { width: 28px; height: 3px; background-color: white; border-radius: 2px; }
-        #menu-content { display: none; position: fixed; top: 75px; right: 20px; width: 260px; background-color: #333; border: 1px solid #555; border-radius: 8px; padding: 15px; z-index: 9998; box-shadow: 0 10px 25px rgba(0,0,0,0.5); flex-direction: column; font-family: "Helvetica Neue", Arial, sans-serif; text-align: left; }
-        #menu-content.active { display: flex; animation: fadeIn 0.2s ease-out; }
-        .menu-link { display: block; color: white !important; text-decoration: none; padding: 12px 15px; margin-bottom: 6px; border-radius: 4px; background-color: #444; font-size: 16px; font-weight: bold; transition: background 0.2s; }
-        .menu-link:hover { background-color: #0d6efd; color: white; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
-
         #printResultTable { display: none; }
         @media print {
             body { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
-            .no-print, .nav-tabs, .btn, .form-control, .alert, .modal, #backToTop, .sticky-tabs, #custom-hamburger-menu, #ie-warning { display: none !important; }
+            .no-print, .nav-tabs, .btn, .form-control, .alert, .modal, #backToTop, .sticky-tabs, #ie-warning { display: none !important; }
             .container-main { box-shadow: none; margin: 0; padding: 0; width: 100%; max-width: 100%; }
             .print-header { display: flex !important; justify-content: space-between; align-items: flex-end; margin-bottom: 10px; border-bottom: 2px solid #000; padding-bottom: 5px; }
             .tab-pane { display: none !important; }
@@ -271,18 +261,6 @@
 })();
 </script>
 
-<div id="custom-hamburger-menu" class="no-print">
-    <button id="menu-toggle-btn" onclick="toggleMenu()" title="メニューを開く"><span class="bar"></span><span class="bar"></span><span class="bar"></span></button>
-    <nav id="menu-content">
-        <div style="color:#aaa; font-size:12px; margin-bottom:10px; text-align:center; border-bottom:1px solid #555; padding-bottom:5px;">業務支援ツール統合メニュー</div>
-        <a href="index.html" class="menu-link">🏠 メニュー画面へ</a>
-        <hr style="margin: 8px 0; border-color: #555;">
-        <a href="休薬確認ツール.html" class="menu-link">💊 休薬確認ツール</a>
-        <a href="配合変化ツール.html" class="menu-link">💉 配合変化ツール</a>
-        <a href="小児投与量確認ツール.html" class="menu-link">👶 小児用量監査</a>
-        <button onclick="toggleMenu()" style="width:100%; margin-top:10px; background:transparent; border:1px solid #777; color:#ccc; padding:5px; border-radius:4px; cursor:pointer;">閉じる</button>
-    </nav>
-</div>
 <button id="backToTop" onclick="window.scrollTo({top: 0, behavior: 'smooth'});">▲</button>
 
 <div class="container-main">
@@ -306,7 +284,6 @@
     </div>
 
     <div class="tab-content">
-        <!-- Tab 1: Check -->
         <div id="check-tab" class="tab-pane show active">
             <div class="row g-2 mb-3 no-print">
                 <div class="col-md-5">
@@ -356,7 +333,6 @@
             <div class="mt-2 border-top pt-2 d-none d-print-block"><small class="fw-bold">【引用・根拠】</small><div id="printCitationList" class="citation-list"></div></div>
         </div>
 
-        <!-- Tab 2: Schedule -->
         <div id="schedule-tab" class="tab-pane">
             <div class="print-header">
                 <div style="font-size: 16pt; font-weight: bold;">休薬日確認カレンダー</div>
@@ -370,7 +346,6 @@
             <div id="scheduleResultArea" class="table-custom"></div>
         </div>
 
-        <!-- Tab 3: Master -->
         <div id="master-tab" class="tab-pane">
             <div class="mb-2"><input type="text" id="masterSearch" class="form-control" placeholder="薬剤名を入力（ひらがな・カナ検索可、スペース区切りで複数可）" onkeyup="filterMasterTable()"></div>
             <div style="height: 650px; overflow-y: auto;">
@@ -381,7 +356,6 @@
             </div>
         </div>
 
-        <!-- Tab 4: Protocol -->
         <div id="anticoagulant-tab" class="tab-pane">
             <div id="ac-wrapper">
                 <div class="date-section no-print" style="margin-top:20px;">
@@ -498,14 +472,12 @@
             </div>
         </div>
 
-        <!-- Tab 5: Admin (New in Ver40) -->
         <div id="admin-tab" class="tab-pane">
             <div class="alert alert-primary mb-4 no-print">
                 <h4 class="fw-bold m-0" style="color:#084298;">⚙️ データベース管理・新規薬剤抽出</h4>
                 <p class="m-0 mt-2 small">JUST Calcからデータを貼り付けて、新規薬剤の抽出やシステムの更新を行います。<br>※更新を行った場合、新しいHTMLファイルがダウンロードされますので、既存のファイルに上書きして運用してください。</p>
             </div>
 
-            <!-- 抽出機能 -->
             <div class="card mb-4 no-print">
                 <h5 class="fw-bold mb-3" style="color:#2c3e50;">■ 新規候補薬剤の抽出</h5>
                 <div class="mb-2">
@@ -533,7 +505,6 @@
                 </table>
             </div>
 
-            <!-- 更新機能 -->
             <div class="card no-print">
                 <h5 class="fw-bold mb-3" style="color:#2c3e50;">■ ツールの更新（新しいHTMLファイルをダウンロード）</h5>
                 <div class="row g-3 mb-3">
@@ -1079,7 +1050,7 @@ function parseMasterData(rawData) {
 }
 
 // -----------------------------------------------------------
-// テキスト整理・判定用共通関数 (VBAロジック移植)
+// テキスト整理・判定用共通関数
 // -----------------------------------------------------------
 function normalizeString(str) {
     if (!str) return "";
@@ -1213,6 +1184,7 @@ function determineRowStatus(m, hasDate, sDateStr) {
             calcText = res.text;
             rowClass = res.alert ? "row-alert" : (res.css || "");
         } else {
+            // 手術日未定時の判定
             if (m.period.includes("院内推奨期間なし")) {
                 rowClass = "row-gray";
                 calcText = "院内推奨期間なし";
@@ -1229,6 +1201,7 @@ function determineRowStatus(m, hasDate, sDateStr) {
             }
         }
     }
+    
     return { rowClass, calcText };
 }
 
@@ -1540,6 +1513,9 @@ function generateCalendarHTML(baseDate, highlights) {
     return html;
 }
 
+// -----------------------------------------------------------
+// タブ3: マスター検索
+// -----------------------------------------------------------
 function filterMasterTable() {
     const txt = document.getElementById("masterSearch").value;
     const tbody = document.getElementById("masterTableBody");
@@ -1556,6 +1532,7 @@ function filterMasterTable() {
     });
 }
 
+// タブ切り替え
 function switchTab(tabId) {
     document.querySelectorAll('.nav-link').forEach(el => el.classList.remove('active'));
     document.querySelectorAll('.nav-link').forEach(el => {
@@ -1577,7 +1554,6 @@ function switchTab(tabId) {
     if(tabId === 'master-tab') filterMasterTable();
 }
 
-function toggleMenu() { document.getElementById('menu-content').classList.toggle('active'); }
 window.onscroll = function() { document.getElementById("backToTop").style.display = (document.body.scrollTop > 200 || document.documentElement.scrollTop > 200) ? "block" : "none"; };
 
 // -----------------------------------------------------------
