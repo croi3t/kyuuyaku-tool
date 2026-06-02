@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>術前休薬確認ツール Ver39.0</title>
+    <title>術前休薬確認ツール Ver39.1</title>
     <style>
         /* --- 基本設定 --- */
         body { font-family: "Helvetica Neue", Arial, sans-serif; background-color: #f4f6f9; color: #333; margin: 0; padding: 20px; }
@@ -222,6 +222,8 @@
             .table-custom { font-size: 12px !important; }
             .table-custom th, .table-custom td { padding: 3px 4px !important; }
             
+            .table-custom .small { font-size: inherit !important; }
+
             #resultTable { display: none !important; }
             #printResultTable { display: table !important; width: 100%; }
             .edit-mark[style*="inline"] { display: inline !important; }
@@ -292,7 +294,7 @@
 
 <div class="container-main">
     <div class="d-flex justify-content-between align-items-center no-print mb-3">
-        <h3 class="fw-bold m-0" style="font-size:18px;">🏥 術前休薬確認ツール Ver39.0</h3>
+        <h3 class="fw-bold m-0" style="font-size:18px;">🏥 術前休薬確認ツール Ver39.1</h3>
         <button class="btn btn-secondary btn-sm" onclick="window.location.reload()">リセット</button>
     </div>
 
@@ -312,7 +314,9 @@
     <div class="tab-content">
         <div id="check-tab" class="tab-pane show active">
             <div class="row g-2 mb-3 no-print">
-                <div class="col-md-5"><textarea id="rawInput" class="form-control" placeholder="電子カルテ等の薬剤リストをここに貼り付けてください"></textarea></div>
+                <div class="col-md-5">
+                    <textarea id="rawInput" class="form-control" placeholder="電子カルテ等の薬剤リストをここに貼り付けてください"></textarea>
+                </div>
                 <div class="col-md-4">
                     <label class="small fw-bold">手術予定日</label>
                     <input type="date" id="surgeryDate" class="form-control" onchange="processData()">
@@ -500,9 +504,9 @@
 
 <script>
 // --- VBAで書き換える変数 ---
-const DATA_UPDATED = "2026.02.10";
+const DATA_UPDATED = "2026.06.02";
 
-// VBA置換用マーカー (マスタデータは変更なしのため省略、実際のコードには含めてください)
+// VBA置換用マーカー
 const rawMasterData = `
 手術前中止薬一覧			本表は汎用薬を抜粋したものです。これ以外にも留意すべき薬剤があります。 あくまでも一目安としてご利用ください。			
 分類	分類2	商品名	一般名	休薬期間	引用	休薬理由
@@ -513,8 +517,6 @@ const rawMasterData = `
 降圧薬	ARB/Ca拮抗薬	ザクラス	アジルサルタン・アムロジピン	24時間前	3	術中血圧低下のリスク
 降圧薬	ARB/Ca拮抗薬	ジルムロ	アジルサルタン・アムロジピン	24時間前	3	術中血圧低下のリスク
 抗血小板薬	抗血小板薬	バイアスピリン	アスピリン	院内プロトコル(別紙)参照	2	出血リスク
-抗血小板薬	抗血小板薬	コンプラビン	クロピドグレル・アスピリン	院内プロトコル(別紙)参照	2	出血リスク
-抗血小板薬	抗血小板薬	ロレアス	クロピドグレル・アスピリン	院内プロトコル(別紙)参照	2	出血リスク
 抗血小板薬	抗血小板薬	バファリン	アスピリン・ダイアルミネート	院内プロトコル(別紙)参照	2	出血リスク
 抗血小板薬	抗血小板薬	キャブピリン	アスピリン・ボノプラザン	院内プロトコル(別紙)参照	2	出血リスク
 抗血小板薬	抗血小板薬	タケルダ	アスピリン・ランソプラゾール	院内プロトコル(別紙)参照	2	出血リスク
@@ -522,6 +524,7 @@ const rawMasterData = `
 利尿薬	ループ系	ダイアート	アゾセミド	院内推奨期間なし	3	ﾛｸﾛﾆｳﾑの作用増強､昇圧ｱﾐﾝの作用減弱のおそれ
 降圧薬	β受容体遮断薬	アルセノール	アテノロール	継続を推奨	3	中止により反跳性高血圧､虚血症状､不整脈のリスク
 降圧薬	β受容体遮断薬	テノーミン	アテノロール	継続を推奨	3	中止により反跳性高血圧､虚血症状､不整脈のリスク
+アナフィラキシー補助治療剤	アドレナリン製剤	ネフィー	アドレナリン	院内推奨期間無し	3	鼻の手術歴あれば投与を避ける(点鼻製剤)
 糖尿病薬	DPP-4阻害薬	スイニー	アナグリプチン	当日		インスリンによる血糖管理が望まれるため
 糖尿病薬	ビグアナイド薬/DPP-4阻害薬	メトアナ	アナグリプチン・メトホルミン	前後2日	9	乳酸アシドーシスのリスク
 抗凝固薬	抗凝固薬	エリキュース	アピキサバン	院内プロトコル(別紙)参照	2	出血リスク
@@ -559,6 +562,7 @@ const rawMasterData = `
 糖尿病薬	合剤	ゾルトファイ	インスリンデグルデク・リラグルチド	当日		インスリンによる血糖管理が望まれるため
 利尿薬	チアジド系類似薬	ナトリックス	インダパミド	院内推奨期間なし	3	ﾛｸﾛﾆｳﾑの作用増強､昇圧ｱﾐﾝの作用減弱のおそれ
 排尿障害改善薬	α1受容体遮断	エブランチル	ウラピジル	院内推奨期間なし	3	白内障手術時､術中虹彩緊張低下症候群のリスク
+肝・胆・消化機能改善剤	肝・胆・消化機能改善剤	ウルソ	ウルソデオキシコール酸	院内推奨期間無し	3	十二指腸乳頭部の処置歴あれば慎重投与
 糖尿病薬	GLP-1受容体作動薬	バイエッタ	エキセナチド	当日		インスリンによる血糖管理が望まれるため
 女性ﾎﾙﾓﾝ薬(ピル)	卵胞ホルモン/黄体ホルモン	アリッサ	エステトロール・ドロスピレノン	手術前４週､術後２週	3	静脈血栓塞栓症のリスク
 女性ﾎﾙﾓﾝ薬	卵胞ホルモン	エストラーナテープ	エストラジオール	主治医判断	3	長期臥床で血栓リスク
@@ -570,11 +574,13 @@ const rawMasterData = `
 女性ﾎﾙﾓﾝ薬	卵胞ホルモン	エストラジオール安息香酸エステル	エストラジオール安息香酸エステル	主治医判断	3	長期臥床で血栓リスク
 女性ﾎﾙﾓﾝ薬	卵胞ホルモン	プロギノン・デポー	エストラジオール吉草酸エステル	主治医判断	3	長期臥床で血栓リスク
 女性ﾎﾙﾓﾝ薬	卵胞ホルモン	ペラニンデポー	エストラジオール吉草酸エステル	主治医判断	3	長期臥床で血栓リスク
+抗悪性腫瘍薬	卵胞ホルモン	エストラサイト	エストラムスチンリン酸エステルナトリウム水和物	主治医判断	3	長期臥床で血栓リスク
 女性ﾎﾙﾓﾝ薬	卵胞ホルモン	エストリール	エストリオール	主治医判断	3	長期臥床で血栓リスク
 女性ﾎﾙﾓﾝ薬	卵胞ホルモン	ホーリン	エストリオール	主治医判断	3	長期臥床で血栓リスク
 女性ﾎﾙﾓﾝ薬	卵胞ホルモン	プレマリン	エストロゲン	手術前４週	3	静脈血栓塞栓症のリスク
 抗リウマチ剤	TNFα／LTαレセプター製剤 	エンブレル	エタネルセプト	院内推奨期間なし	3	手術前後の臨床試験無し
 骨粗鬆症治療薬	ビスホスホネート薬	ダイドロネル	エチドロン酸	歯科手術２カ月前	4	顎骨壊死のリスク
+抗悪性腫瘍薬	卵胞ホルモン	プロセキソール	エチニルエストラジオール	主治医判断	3	長期臥床で血栓リスク
 抗凝固薬	抗凝固薬	リクシアナ	エドキサバン	院内プロトコル(別紙)参照	2	出血リスク
 降圧薬	ACE阻害薬	レニベース	エナラプリル	24時間前	3	術中血圧低下のリスク
 糖尿病薬	SGLT2阻害薬	ジャディアンス	エンパグリフロジン	糖尿病3日前/心不全当日	1,11	ケトアシドーシスのリスク
@@ -609,6 +615,8 @@ const rawMasterData = `
 糖尿病薬	SU薬	ダオニール	グリベンクラミド	当日		インスリンによる血糖管理が望まれるため
 糖尿病薬	SU薬	アマリール	グリメピリド	当日		インスリンによる血糖管理が望まれるため
 抗血小板薬	抗血小板薬	プラビックス	クロピドグレル	院内プロトコル(別紙)参照	2	出血リスク
+抗血小板薬	抗血小板薬	コンプラビン	クロピドグレル・アスピリン	院内プロトコル(別紙)参照	2	出血リスク
+抗血小板薬	抗血小板薬	ロレアス	クロピドグレル・アスピリン	院内プロトコル(別紙)参照	2	出血リスク
 糖尿病薬	SU薬	クロルプロパミド	クロルプロパミド	当日		インスリンによる血糖管理が望まれるため
 治療的流産	プロスタグランジンE2製剤	プレグランディン腟坐剤	ゲメプロスト	院内推奨期間なし	3	帝王切開･子宮切開歴は慎重投与
 鎮咳薬	ｵﾋﾟｵｲﾄﾞ受容体作動	コデイン	コデイン	院内推奨期間なし	3	(禁忌)18歳未満の扁桃摘除術後･アデノイド切除術後､(慎重投与)消化管手術後･尿路手術後
@@ -660,6 +668,7 @@ const rawMasterData = `
 糖尿病薬	SGLT2阻害薬	フォシーガ	ダパグリフロジン	糖尿病3日前/心不全当日	1,11	ケトアシドーシスのリスク
 抗凝固薬	抗凝固薬	プラザキサ	ダビガトラン	院内プロトコル(別紙)参照	2	出血リスク
 前立腺肥大症治療薬	α1受容体遮断	ハルナール	タムスロシン	院内推奨期間なし	3	白内障手術時､術中虹彩緊張低下症候群のリスク
+抗悪性腫瘍薬	抗エストロゲン 	ノルバデックス	タモキシフェン	院内推奨期間無し	3	長期臥床で血栓リスク
 血液凝固阻止剤	血液凝固系阻害	フラグミン	ダルテパリン	院内推奨期間なし	3	出血リスク
 抗血小板薬	抗血小板薬	ブリリンタ	チカグレロル	5日以上前	3	出血リスク
 抗血小板薬	抗血小板薬	パナルジン	チクロピジン	院内プロトコル(別紙)参照	2	出血リスク
@@ -700,6 +709,8 @@ const rawMasterData = `
 緑内障治療薬	炭酸脱水酵素阻害/β-遮断	コソプト配合点眼液	ドルゾラミド・チモロール	院内推奨期間なし	3	眼内手術で角膜浮腫リスク増加
 緑内障治療薬	炭酸脱水酵素阻害/β-遮断	ドルモロール配合点眼液	ドルゾラミド・チモロール	院内推奨期間なし	3	眼内手術で角膜浮腫リスク増加
 緑内障治療薬	炭酸脱水酵素阻害/β-遮断	コソプトミニ配合点眼液	ドルゾラミド・チモロール	院内推奨期間なし	3	眼内手術で角膜浮腫リスク増加
+肺高血圧症治療薬	PGI2誘導体製剤	トレプロスト	トレプロスチニル	院内推奨期間無し	3	出血リスク､急な中止で死亡の報告(注射製剤)
+抗悪性腫瘍薬	抗エストロゲン 	フェアストン	トレミフェン	院内推奨期間無し	3	長期臥床で血栓リスク
 糖尿病薬	DPP-4阻害薬	ザファテック	トレラグリプチン	当日		インスリンによる血糖管理が望まれるため
 糖尿病薬	DPP-4阻害薬	ザファテック(週1回)	トレラグリプチン	当日		インスリンによる血糖管理が望まれるため
 女性ﾎﾙﾓﾝ薬(ピル)	卵胞ホルモン/黄体ホルモン	ドロエチ	ドロスピレノン・エチニルエストラジオール	手術前４週､術後２週	3	静脈血栓塞栓症のリスク
@@ -781,9 +792,9 @@ const rawMasterData = `
 降圧薬	ACE阻害薬	チバセン	ベナゼプリル	24時間前	3	術中血圧低下のリスク
 抗リウマチ剤	免疫抑制剤	メタルカプターゼ	ペニシラミン	院内推奨期間なし	3	手術直後重篤な血液障害のリスク
 抗悪性腫瘍薬	抗VEGF抗体	アバスチン	ベバシズマブ	4～6週間	5	創傷治癒遅延
+血液凝固阻止剤	血液凝固系阻害	ノボ・ヘパリン	ヘパリン	院内推奨期間なし	3	出血リスク
 血液凝固阻止剤	血液凝固系阻害	ヘパリンＣａ	ヘパリンカルシウム	院内推奨期間なし	3	出血リスク
 血液凝固阻止剤	血液凝固系阻害	ヘパリンＮａ	ヘパリンナトリウム	院内推奨期間なし	3	出血リスク
-血液凝固阻止剤	血液凝固系阻害	ノボ・ヘパリン	ヘパリンナトリウム	院内推奨期間なし	3	出血リスク
 血液凝固阻止剤	血液凝固系阻害	ヘパリン類似物質	ヘパリン類似物質	-	-	外用剤のため全身への影響は少ない
 降圧薬	β受容体遮断薬	カルバン	ベバントロール	継続を推奨	3	中止により反跳性高血圧､虚血症状､不整脈のリスク
 抗血小板薬	抗血小板薬	ケアロード	ベラプロスト	1日前	3	出血リスク
@@ -813,6 +824,7 @@ const rawMasterData = `
 利尿薬	チアジド系類似薬	バイカロン	メフルシド	院内推奨期間なし	3	ﾛｸﾛﾆｳﾑの作用増強､昇圧ｱﾐﾝの作用減弱のおそれ
 鎮痛薬	NSAIDs	モービック	メロキシカム	院内推奨期間なし	3	腎不全のリスク
 抗アレルギー薬	副腎皮質ホルモン	ナゾネックス点鼻液	モメタゾンフランカルボン酸エステル	院内推奨期間なし	3	鼻手術後創傷治癒遅延のリスク
+抗アレルギー薬	副腎皮質ホルモン	モメタゾン点鼻液	モメタゾンフランカルボン酸エステル	院内推奨期間なし	3	鼻手術後創傷治癒遅延のリスク
 鎮痛薬	ｵﾋﾟｵｲﾄﾞ受容体刺激	ＭＳコンチン	モルヒネ	継続を推奨	3	尿路手術後排尿障害･消化管手術直後消化管運動抑制
 鎮痛薬	ｵﾋﾟｵｲﾄﾞ受容体刺激	ＭＳツワイスロン	モルヒネ	継続を推奨	3	尿路手術後排尿障害･消化管手術直後消化管運動抑制
 鎮痛薬	ｵﾋﾟｵｲﾄﾞ受容体刺激	アンペック坐剤	モルヒネ	継続を推奨	3	尿路手術後排尿障害･消化管手術直後消化管運動抑制
@@ -863,6 +875,10 @@ const rawMasterData = `
 経口腸管洗浄剤 	経口腸管洗浄剤 	サルプレップ	無水硫酸ナトリウム・硫酸カリウム・硫酸マグネシウム水和物	院内推奨期間なし	3	腹部手術後腸閉塞のリスク
 造影剤	大腸CT用経口造影剤	エネマスター	硫酸バリウム	院内推奨期間なし	3	消化管切除後穿孔のリスク
 造影剤	注腸用X線造影剤	コロンフォート	硫酸バリウム	院内推奨期間なし	3	消化管切除後穿孔のリスク
+抗血小板薬	抗血小板薬	バッサミン配合錠	アスピリン/ダイアルミネート	下記資料参照	2	出血リスク
+抗血小板薬	抗血小板薬	ファモター配合錠	アスピリン/ダイアルミネート	下記資料参照	2	出血リスク
+抗血小板薬	抗血小板薬	アスファネート配合錠	アスピリン/ダイアルミネート	下記資料参照	2	出血リスク
+抗血小板薬	抗血小板薬	ニトギス配合錠	アスピリン/ダイアルミネート	下記資料参照	2	出血リスク
 引用リスト						
 1:糖尿病治療におけるSGLT2阻害薬の適正使用に関する Recommendation						
 2:手術などを行う際の抗凝固薬・抗血小板薬取り扱いの参考目安(院内ポータル)						
@@ -881,7 +897,6 @@ const rawMasterData = `
 // --- 定数定義 ---
 const EXTERNAL_KEYWORDS = ["点眼", "眼軟膏", "軟膏", "クリーム", "ゲル", "ローション", "パップ", "貼付", "テープ", "坐剤", "坐薬", "吸入", "トローチ", "うがい", "スプレー"];
 const EXTERNAL_KEYWORDS_OVERRIDE = EXTERNAL_KEYWORDS;
-const ORAL_FORMS = ["口腔内崩壊錠", "ドライシロップ", "チュアブル錠", "配合顆粒", "軟カプセル", "硬カプセル", "塩酸塩錠", "硫酸塩錠", "リン酸塩錠", "マレイン酸塩錠", "クエン酸塩錠", "フマル酸塩錠", "ナトリウム錠", "カリウム錠", "カルシウム錠", "塩酸塩カプセル", "硫酸塩カプセル", "リン酸塩カプセル", "マレイン酸塩カプセル", "ナトリウムカプセル", "配合錠", "ＯＤ錠", "カプセル", "顆粒剤", "細粒剤", "シロップ", "顆粒", "細粒", "散剤", "錠", "散", "塩酸塩", "硫酸塩", "リン酸塩", "マレイン酸塩", "クエン酸塩", "フマル酸塩", "ナトリウム", "カリウム", "カルシウム"];
 const NG_KEYWORDS = ["薬効名称", "院内", "分１", "分２", "分３", "分４", "分５", "１日", "1日", "回", "食後", "食前", "朝", "昼", "夕", "眠前", "Rp", "Ｒｐ", "RP", "rp"];
 
 const DATE_RULES = {
@@ -913,7 +928,8 @@ const DATE_RULES = {
     "ｵﾋﾟｵｲﾄﾞ投与1週間前": { text: "-", alert: false },
     "継続を推奨": { text: "-", alert: false },
     "歯科手術２カ月前": { text: "-", alert: false },
-    "主治医判断": { text: "-", alert: false }
+    "主治医判断": { text: "-", alert: false },
+    "長期不動状態の３日前": { text: "長期不動開始の3日前", alert: true }
 };
 
 // AC Protocol Matrix (省略、変更なし)
@@ -1055,11 +1071,37 @@ function cleanDrugName(rawText) {
     const splitMatch = name.match(/^([^\s　「]+)/);
     if(splitMatch) name = splitMatch[1];
     
-    name = name.replace("★", "").replace("（医療用）", "");
-    name = name.replace(/[／\/]/g, "");
+    // 不要文字・スラッシュ削除
+    name = name.replace("★", "").replace("（医療用）", "").replace(/[／\/]/g, "");
     
-    name = name.replace(/[A-Za-z0-9]/g, s => String.fromCharCode(s.charCodeAt(0) + 0xFEE0));
-    name = name.replace(/[0-9０-９]+(\.[0-9０-９]+)?(mg|g|ｍｇ|ｇ|mL|ｍＬ|μg|ｍL|mcg)/gi, "");
+    // 組文字などの特殊文字を標準文字に置換 (㎎ -> mg)
+    name = name.replace(/㎎/g, "mg").replace(/㎍/g, "μg").replace(/㎖/g, "ml").replace(/㌘/g, "g");
+    
+    // 半角化 (数字、アルファベット)
+    name = name.replace(/[Ａ-Ｚａ-ｚ０-９]/g, s => String.fromCharCode(s.charCodeAt(0) - 0xFEE0));
+    
+    // 全角ドットを半角ドットに
+    name = name.replace(/．/g, ".");
+    
+    // 【Ver39.1】剤形や塩を境界とした規格の削除 (例: "アムロジピンOD錠2.5mg" -> "アムロジピンOD錠")
+    const boundaries = [
+        "OD錠", "ＯＤ錠", "錠", "カプセル", "散", "顆粒", "細粒", "シロップ", "ドライシロップ", "液",
+        "テープ", "パップ", "クリーム", "軟膏", "ゲル", "ローション", "坐剤", "坐薬",
+        "塩酸塩", "硫酸塩", "リン酸塩", "マレイン酸塩", "クエン酸塩", "フマル酸塩", "メシル酸塩", "ベシル酸塩", "トシル酸塩", 
+        "ナトリウム", "カリウム", "カルシウム"
+    ];
+    
+    // 境界キーワードの後にスペース(任意)と「数字」が続いて末尾まで終わる場合、数字以降を削除する
+    for (const b of boundaries) {
+        const reg = new RegExp("(" + b + ")[\\s]*[0-9][\\s\\S]*$");
+        if (reg.test(name)) {
+            name = name.replace(reg, "$1");
+            break; 
+        }
+    }
+
+    // 境界キーワードがない場合の規格単位削除 (数値+単位のみ。%は残す) 例: "スーテント12.5mg"
+    name = name.replace(/[0-9]+(\.[0-9]+)?[\s]*(mg|g|ml|μg|mcg)/gi, "");
 
     return name.trim();
 }
@@ -1093,6 +1135,7 @@ function determineRowStatus(m, hasDate, sDateStr) {
             calcText = res.text;
             rowClass = res.alert ? "row-alert" : (res.css || "");
         } else {
+            // 手術日未定時の判定
             if (m.period.includes("院内推奨期間なし")) {
                 rowClass = "row-gray";
                 calcText = "院内推奨期間なし";
@@ -1109,6 +1152,7 @@ function determineRowStatus(m, hasDate, sDateStr) {
             }
         }
     }
+    
     return { rowClass, calcText };
 }
 
@@ -1119,6 +1163,7 @@ function processData() {
     const dateText = hasDate ? new Date(surgeryDateStr).toLocaleDateString('ja-JP', {year:'numeric', month:'2-digit', day:'2-digit'}) : "未設定";
     document.getElementById("printDateDisplay_Check").textContent = "手術予定日：" + dateText;
     
+    // 印刷用テーブルのヘッダー制御
     document.querySelectorAll(".col-calc").forEach(el => {
         el.style.display = hasDate ? "" : "none";
     });
@@ -1155,6 +1200,7 @@ function processData() {
             const cleaned = cleanDrugName(line);
             const bestMatch = findMatchingDrug(line, cleaned);
 
+            // 外用剤自動上書きロジック
             if (bestMatch) {
                 let isExternalOverride = false;
                 for (const kw of EXTERNAL_KEYWORDS_OVERRIDE) {
@@ -1236,6 +1282,7 @@ function renderResults(results, hasDate, sDateStr) {
                     <span class="edit-mark">📝</span>
                 </div>`;
             
+            // 【Ver39.1】印刷時の改行対応（calcText：日付計算結果列）
             let printCalcText = calcText;
             if (printCalcText.includes("糖尿病3日前/心不全当日")) {
                 printCalcText = printCalcText.replace("糖尿病3日前/心不全当日", "糖尿病3日前<br>心不全当日");
@@ -1245,6 +1292,7 @@ function renderResults(results, hasDate, sDateStr) {
 
             trS.innerHTML = `<td class="fw-bold">${r.name}</td><td class="small">${m.type}</td><td class="small">${m.period}</td><td class="fw-bold" style="${hasDate?'':'display:none;'}">${editHtml}</td><td class="small">${m.reason}</td><td class="small text-center">${m.ref}</td>`;
             
+            // 【Ver39.1】印刷用テーブル（第3列：休薬期間列も改行対応）
             let printPeriod = m.period;
             if (printPeriod.includes("糖尿病3日前/心不全当日")) {
                 printPeriod = printPeriod.replace("糖尿病3日前/心不全当日", "糖尿病3日前<br>心不全当日");
@@ -1318,10 +1366,6 @@ function getAcScheduleText(days, sDateVal) {
     }
 }
 
-// -----------------------------------------------------------
-// Schedule & Calendar Functions
-// -----------------------------------------------------------
-
 function calcScheduleTab() {
     const dStr = document.getElementById("scheduleDateInput").value;
     const area = document.getElementById("scheduleResultArea");
@@ -1333,7 +1377,6 @@ function calcScheduleTab() {
     const fmt = d => `${d.getMonth()+1}/${d.getDate()} (${["日","月","火","水","木","金","土"][d.getDay()]})`;
     const add = n => { const x = new Date(sDate); x.setDate(x.getDate() + n); return x; };
     
-    // 2ヶ月前計算用
     const addMonth = m => {
         const x = new Date(sDate);
         x.setMonth(x.getMonth() + m);
@@ -1355,11 +1398,9 @@ function calcScheduleTab() {
         { l: "術後2週", d: 14 }
     ];
     
-    let highlightDates = {}; // Calendar highlights (dateStr -> {class, label})
+    let highlightDates = {};
     
     let h = `<div class="timeline-wrapper">`;
-    
-    // List Column
     h += `<div class="timeline-container"><table class="timeline-table"><thead><tr><th class="timeline-date-col">日付</th><th class="timeline-content-col">休薬・対応</th></tr></thead><tbody>`;
     patterns.forEach(p => {
         let dateObj;
@@ -1380,13 +1421,12 @@ function calcScheduleTab() {
     });
     h += `</tbody></table></div>`;
     
-    // Calendar Column
     h += `<div class="calendar-container"><div class="cal-wrapper">`;
-    h += generateCalendarHTML(new Date(sDate.getFullYear(), sDate.getMonth() - 1, 1), highlightDates); // Previous month
-    h += generateCalendarHTML(new Date(sDate.getFullYear(), sDate.getMonth(), 1), highlightDates);     // Surgery month
+    h += generateCalendarHTML(new Date(sDate.getFullYear(), sDate.getMonth() - 1, 1), highlightDates);
+    h += generateCalendarHTML(new Date(sDate.getFullYear(), sDate.getMonth(), 1), highlightDates);
     h += `</div></div>`;
     
-    h += `</div>`; // Close timeline-wrapper
+    h += `</div>`;
     
     area.innerHTML = h;
 }
@@ -1419,11 +1459,10 @@ function generateCalendarHTML(baseDate, highlights) {
         html += `<div class="${className}">${content}</div>`;
     }
     
-    html += `</div></div>`; // Close grid & cal-month
+    html += `</div></div>`;
     return html;
 }
 
-// 薬剤一覧検索
 function filterMasterTable() {
     const txt = document.getElementById("masterSearch").value;
     const tbody = document.getElementById("masterTableBody");
@@ -1440,7 +1479,6 @@ function filterMasterTable() {
     });
 }
 
-// タブ切り替え
 function switchTab(tabId) {
     document.querySelectorAll('.nav-link').forEach(el => el.classList.remove('active'));
     document.querySelectorAll('.nav-link').forEach(el => {
