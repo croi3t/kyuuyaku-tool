@@ -165,7 +165,10 @@
 <div class="container-main">
     <div class="d-flex justify-content-between align-items-center no-print mb-3">
         <h3 class="fw-bold m-0" style="font-size:18px;">🏥 術前休薬確認ツール <span id="verDisplay"></span></h3>
-        <button class="btn btn-secondary btn-sm" onclick="window.location.reload()">リセット</button>
+        <div>
+            <button class="btn btn-info btn-sm me-2 text-white" onclick="switchTab('help-tab')" style="background-color: #17a2b8; border-color: #17a2b8;">❓ 使い方</button>
+            <button class="btn btn-secondary btn-sm" onclick="window.location.reload()">リセット</button>
+        </div>
     </div>
 
     <div class="alert alert-warning border border-warning small no-print">
@@ -184,10 +187,59 @@
             <li class="nav-item admin-sub-tab" style="display:none;"><a class="nav-link text-success" data-target="admin-exclude-tab" onclick="switchTab('admin-exclude-tab')">🚫 除外リスト</a></li>
             <li class="nav-item admin-sub-tab" style="display:none;"><a class="nav-link text-success" data-target="admin-download-tab" onclick="switchTab('admin-download-tab')">💾 最新版作成</a></li>
             <li class="nav-item admin-sub-tab" style="display:none;"><a class="nav-link text-success" data-target="admin-ref-tab" onclick="switchTab('admin-ref-tab')">📖 参考文献</a></li>
+            <li class="nav-item admin-sub-tab" style="display:none;"><a class="nav-link text-success" data-target="admin-help-tab" onclick="switchTab('admin-help-tab')">🛠 管理者ヘルプ</a></li>
         </ul>
     </div>
 
     <div class="tab-content">
+        <!-- ❓ 使い方ヘルプ -->
+        <div id="help-tab" class="tab-pane">
+            <div class="card mb-4 border-info">
+                <div class="card-header bg-info text-white fw-bold">
+                    💡 術前休薬確認ツールの使い方（一般利用）
+                </div>
+                <div class="card-body">
+                    <h5 class="fw-bold border-bottom pb-2 text-primary">① 判定・リスト作成</h5>
+                    <p class="small mb-1"><strong>【入力とボタン】</strong></p>
+                    <ul class="small mb-2">
+                        <li><strong>テキストエリア：</strong> 電子カルテからコピーした処方テキスト（持参薬一覧など）を貼り付けます。</li>
+                        <li><strong>手術予定日：</strong> 日付を入力すると、休薬日数が「〇月〇日」という具体的な日付で計算されます。（未入力でも判定可能です）</li>
+                        <li><strong>「判定実行」ボタン：</strong> 貼り付けたテキストを解析し、休薬が必要なお薬だけを自動抽出します。</li>
+                    </ul>
+                    <p class="small mb-1"><strong>【表示と操作】</strong></p>
+                    <ul class="small mb-4">
+                        <li><strong>判定結果テーブル：</strong> 抽出された薬剤、休薬期間、具体的な休薬開始日、理由などが一覧表示されます。</li>
+                        <li><strong>直接編集（黄色い点線枠）：</strong> 「推奨休薬期間・開始日」の列をクリックすると、直接文字や日付を手打ちで修正できます。</li>
+                        <li><strong>行の操作（右端ボタン）：</strong> 抽出漏れによる不要なゴミ行が出た場合は「✖」で削除、「↺」で自動計算された日付にリセットできます。</li>
+                        <li><strong>「印刷 (PDF保存)」ボタン：</strong> 患者さんにお渡しできる綺麗なレイアウトの表を印刷（またはPDF化）します。</li>
+                    </ul>
+                    
+                    <h5 class="fw-bold border-bottom pb-2 mt-4 text-primary">② 休薬日確認</h5>
+                    <p class="small mb-1"><strong>【入力とボタン】</strong></p>
+                    <ul class="small mb-2">
+                        <li><strong>手術予定日：</strong> カレンダーの基準となる日付を入力します。</li>
+                        <li><strong>「カレンダー作成」ボタン：</strong> 入力した日付をもとにスケジュール表を作成します。</li>
+                    </ul>
+                    <p class="small mb-4"><strong>【表示と操作】</strong></p>
+                    <ul class="small mb-4">
+                        <li><strong>タイムライン＆カレンダー：</strong> 手術日から逆算した「1週間前」「3日前」などが具体的に何月何日になるのかが視覚的にハイライト表示されます。休薬スケジュールの組み立てや患者さんへの説明に便利です。</li>
+                    </ul>
+        
+                    <h5 class="fw-bold border-bottom pb-2 mt-4 text-primary">③ 薬剤一覧検索</h5>
+                    <p class="small mb-1"><strong>【入力と表示】</strong></p>
+                    <ul class="small mb-4">
+                        <li><strong>検索ボックス：</strong> 薬の名前（商品名・一般名）や分類を入力すると、登録されているマスタ（辞書）の中から該当するお薬が瞬時に絞り込み表示されます。休薬期間や理由をサッと調べたい時に使用します。</li>
+                    </ul>
+        
+                    <h5 class="fw-bold border-bottom pb-2 mt-4 text-primary">④ 抗凝固・抗血小板薬プロトコル</h5>
+                    <p class="small mb-1"><strong>【表示と操作】</strong></p>
+                    <ul class="small mb-4">
+                        <li>抗凝固薬などの複雑な休薬プロトコル（手順書）のPDF画像を閲覧できます。上部のサブタブ（例：DOAC、ワルファリン等）をクリックして表示を切り替えます。</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
         <!-- ① 判定・リスト作成 -->
         <div id="check-tab" class="tab-pane show active">
             <div class="row g-2 mb-3 no-print">
@@ -211,10 +263,10 @@
             </div>
             
             <table class="table table-bordered table-custom no-print-force" id="resultTable">
-                <thead><tr><th style="width: 20%;">薬剤名(判定)</th><th style="width: 15%;">分類</th><th style="width: 15%;">休薬期間</th><th style="width: 20%;" class="col-calc">推奨休薬期間・開始日</th><th style="width: 25%;">休薬理由</th><th style="width: 5%;">引用</th></tr></thead>
-                <tbody><tr><td colspan="6" class="text-center text-muted py-4">データを入力して「判定実行」を押してください</td></tr></tbody>
+                <thead><tr><th style="width: 18%;">薬剤名(判定)</th><th style="width: 13%;">分類</th><th style="width: 13%;">休薬期間</th><th style="width: 20%;" class="col-calc">推奨休薬期間・開始日</th><th style="width: 25%;">休薬理由</th><th style="width: 5%;">引用</th><th style="width: 6%; text-align:center;">操作</th></tr></thead>
+                <tbody><tr><td colspan="7" class="text-center text-muted py-4">データを入力して「判定実行」を押してください</td></tr></tbody>
             </table>
-            <div id="citationList" class="citation-list small text-muted mt-3"><ul class="citation-list"><li class="citation-item">[1] 糖尿病治療におけるSGLT2阻害薬の適正使用に関する Recommendation</li><li class="citation-item">[2] 手術などを行う際の抗凝固薬・抗血小板薬取り扱いの参考目安(院内ポータル)</li><li class="citation-item">[3] 添付文書</li><li class="citation-item">[4] 骨吸収抑制薬関連顎骨壊死の病態と管理 : 顎骨壊死検討委員会ポジションペーパー 2016</li><li class="citation-item">[5] NCCNガイドライン：結腸癌ガイドライン・直腸癌ガイドライン</li><li class="citation-item">[6] 医薬品適正使用ガイド</li><li class="citation-item">[7] 医薬品インタビューフォーム</li><li class="citation-item">[8] 製薬企業ホームページ</li><li class="citation-item">[9] 当院代謝内分泌内科より</li><li class="citation-item">[10] 心不全治療におけるSGLT2阻害薬の適正使用に関するRecommendation</li><li class="citation-item">[11] 赤木晋介（編）, 周術期の安全な薬剤管理を考える会（執筆）. 術前休薬クイックリファレンス.</li></ul></div>
+            <div id="citationList" class="citation-list d-print-none small text-muted mt-3"><ul class="citation-list"><li class="citation-item">[1] 糖尿病治療におけるSGLT2阻害薬の適正使用に関する Recommendation</li><li class="citation-item">[2] 手術などを行う際の抗凝固薬・抗血小板薬取り扱いの参考目安(院内ポータル)</li><li class="citation-item">[3] 添付文書</li><li class="citation-item">[4] 骨吸収抑制薬関連顎骨壊死の病態と管理 : 顎骨壊死検討委員会ポジションペーパー 2016</li><li class="citation-item">[5] NCCNガイドライン：結腸癌ガイドライン・直腸癌ガイドライン</li><li class="citation-item">[6] 医薬品適正使用ガイド</li><li class="citation-item">[7] 医薬品インタビューフォーム</li><li class="citation-item">[8] 製薬企業ホームページ</li><li class="citation-item">[9] 当院代謝内分泌内科より</li><li class="citation-item">[10] 心不全治療におけるSGLT2阻害薬の適正使用に関するRecommendation</li><li class="citation-item">[11] 赤木晋介（編）, 周術期の安全な薬剤管理を考える会（執筆）. 術前休薬クイックリファレンス.</li></ul></div>
             
             <table class="table table-bordered table-custom" id="printResultTable">
                 <thead><tr><th style="width: 20%;">薬剤名(判定)</th><th style="width: 15%;">分類</th><th style="width: 15%;">休薬期間</th><th style="width: 20%;" class="col-calc">推奨休薬期間・開始日</th><th style="width: 25%;">休薬理由</th><th style="width: 5%;">引用</th></tr></thead>
@@ -450,7 +502,51 @@
             </div>
         </div>
 
+        <!-- 管理者ヘルプ -->
+        <div id="admin-help-tab" class="tab-pane">
+            <div class="admin-section" style="border: 1px solid #ccc; padding: 15px; border-radius: 8px; margin-bottom: 20px; background: #fff;">
+                <h4 style="margin-top:0; color:#198754;">🛠 管理者用ヘルプ・マニュアル</h4>
+                
+                <h5 class="fw-bold mt-4 border-bottom pb-1">📥 CSV読込</h5>
+                <p class="small">
+                    部門システム等から出力したCSVファイルを使って、マスタへ新規の薬を一括抽出します。<br>
+                    <strong>使い方:</strong> 点線枠内にCSVファイル（またはTXT/TSVファイル）をドラッグ＆ドロップするか、エクセルからコピーしたテキストを貼り付けます。<br>
+                    <strong>条件:</strong> ヘッダー行に「名称」という文字が含まれている必要があります。自動でマスタと照合され、未登録の薬だけが候補としてリストアップされます。各行で分類等を入力し「登録する」を押すとマスタへ反映されます。
+                </p>
+
+                <h5 class="fw-bold mt-4 border-bottom pb-1">📚 マスタ（薬剤辞書）</h5>
+                <p class="small">
+                    判定の要となるお薬辞書です。<br>
+                    <strong>使い方:</strong> セル（枠）をクリックすると直接文字を打ち換えて編集できます。上部の入力欄から「追加」ボタンで新しい薬を手動登録できます。右端の「↑」「↓」で並び替え、「✖」で削除が可能です。
+                </p>
+
+                <h5 class="fw-bold mt-4 border-bottom pb-1">🚫 除外リスト</h5>
+                <p class="small">
+                    処方テキストにこのキーワードが含まれていた場合、抽出から除外する（無視する）ためのリストです。<br>
+                    <strong>使い方:</strong> マスタと同様に直接編集・追加・削除が可能です。
+                </p>
+
+                <h5 class="fw-bold mt-4 border-bottom pb-1">📖 参考文献</h5>
+                <p class="small">
+                    ①タブでリストを作成した際、一緒に印刷される参考文献の一覧です。<br>
+                    <strong>使い方:</strong> マスタと同様に直接編集・追加・削除が可能です。
+                </p>
+
+                <div class="alert alert-danger mt-4">
+                    <h5 class="fw-bold border-bottom pb-1 border-danger text-danger">💾 最新版作成（※超重要）</h5>
+                    <p class="small mb-0">
+                        管理画面でマスタやCSVから追加・編集したデータは、<strong>ブラウザを閉じるとすべて消えてしまいます。</strong><br>
+                        編集を終えたら、<strong>必ず「最新版作成」タブを開き、「最新版ツール作成（ダウンロード）」ボタンをクリックしてください。</strong><br>
+                        ダウンロードされた新しい「休薬確認ツール.html」を、これまでのファイルに上書き保存することで、はじめて更新データが永続的に保存されます。
+                    </p>
+                </div>
+            </div>
+        </div>
+
     </div>
+        
+    </div>
+
 </div>
 
 <script>
@@ -1220,19 +1316,34 @@ function stripManufacturer(str) {
 
 function cleanDrugName(rawText) {
     if (!rawText || rawText.trim() === "") return null;
-    let name = rawText.trim().replace(/（[^）]+）/g, "").replace(/^[\s ]+/, "");
-    const splitMatch = name.match(/^([^\s 「]+)/);
+    let name = rawText.trim();
+    
+    // 1. 先頭のカッコ類（持参薬）などを削除
+    name = name.replace(/^[（\(【［\[].*?[）\)】］\]]/g, "").trim();
+    name = name.replace(/^[\s　]+/g, "");
+
+    // 2. スペースやタブ、カッコ（「など）が来るまでの最初の単語を抽出
+    const splitMatch = name.match(/^([^\s　\t「【\(（]+)/);
     if(splitMatch) name = splitMatch[1];
-    name = name.replace("★", "").replace("（医療用）", "").replace(/[／\/]/g, "");
+
+    // 3. 不要な記号や単位を置換・削除
+    name = name.replace(/[★※・\/／]/g, "");
     name = name.replace(/㎎/g, "mg").replace(/㎍/g, "μg").replace(/㎖/g, "ml").replace(/㌘/g, "g");
+    
+    // 4. 英数字を全角に変換
     name = name.replace(/[!-~]/g, function(ch) { return String.fromCharCode(ch.charCodeAt(0) + 0xFEE0); });
     name = name.replace(/．/g, ".");
-    const boundaries = ["OD錠", "ＯＤ錠", "錠", "カプセル", "散", "顆粒", "細粒", "シロップ", "ドライシロップ", "液", "テープ", "パップ", "クリーム", "軟膏", "ゲル", "ローション", "坐剤", "坐薬", "塩酸塩", "硫酸塩", "リン酸塩", "マレイン酸塩", "クエン酸塩", "フマル酸塩", "メシル酸塩", "ベシル酸塩", "トシル酸塩", "ナトリウム", "カリウム", "カルシウム"];
+
+    // 5. 剤形の後に数字が続く場合、剤形以降をカット
+    const boundaries = ["OD錠", "ＯＤ錠", "錠", "カプセル", "散", "顆粒", "細粒", "シロップ", "ドライシロップ", "液", "テープ", "パップ", "クリーム", "軟膏", "ゲル", "ローション", "坐剤", "坐薬", "スプレー", "塩酸塩", "硫酸塩", "リン酸塩", "マレイン酸塩", "クエン酸塩", "フマル酸塩", "メシル酸塩", "ベシル酸塩", "トシル酸塩", "ナトリウム", "カリウム", "カルシウム"];
     for (const b of boundaries) {
-        const reg = new RegExp("(" + b + ")[\\s]*[0-9][\\s\\S]*$");
+        const reg = new RegExp("(" + b + ")[0-9０-９]+.*$");
         if (reg.test(name)) { name = name.replace(reg, "$1"); break; }
     }
-    name = name.replace(/[0-9]+(\.[0-9]+)?[\s]*(mg|g|ml|μg|mcg)/gi, "");
+
+    // 6. 末尾に残った数字＋単位をカット
+    name = name.replace(/[0-9０-９]+(\.[0-9０-９]+)?(mg|g|ml|μg|mcg|ｍｇ|ｇ|ｍｌ|μｇ|ｍｃｇ|%|％)$/gi, "");
+
     return name.trim();
 }
 
@@ -1322,15 +1433,21 @@ function parseDatabase() {
 
 
 function findMatchingDrug(line, cleanedName) {
-    const normLine = normalizeString(line);
-    const normCleaned = cleanedName ? normalizeString(cleanedName) : "";
+    const targetNorm = normalizeString(cleanedName);
     let bestMatch = null, maxLen = 0;
     
-    for(let d of masterDataArray) {
-        let keys = [d.normBrand, d.normGene, d.normClean].filter(k=>k);
-        for(let key of keys) {
-            if (normLine.includes(key) || (normCleaned && normCleaned.includes(key))) {
-                if (key.length > maxLen) { maxLen = key.length; bestMatch = d; }
+    for(let m of masterDataArray) {
+        let keys = [m.normBrand, m.normGene, m.normClean].filter(k=>k);
+        for(let k of keys) {
+            // Tab 2と同じ前方一致＋単語境界判定
+            if(targetNorm.indexOf(k) === 0) {
+                const remainder = targetNorm.substring(k.length);
+                if(remainder === "" || isSeparatorWord(remainder)) {
+                    if (k.length > maxLen) { 
+                        maxLen = k.length; 
+                        bestMatch = m; 
+                    }
+                }
             }
         }
     }
@@ -1351,26 +1468,61 @@ function processData() {
 
     const lines = rawInput.split("\n");
     const results = [];
+    
+    // 行全体に含まれていたら確実に弾くキーワード（施設名や固定メッセージなど）
+    const lineNoiseKeywords = [
+        "薬効名称", "院内(", "院内採用", "院外専用", "在庫なし", "持参無", "持参薬用法", "処方あり", 
+        "クリニック", "病院", "眼科", "内科", "外科", "歯科", "薬局",
+        "薬剤師", "未実施", "退院", "No.", "Ｎｏ．", "実数入力", "用法"
+    ];
+
+    // 抽出された単語自体がこれらを含んでいたら弾くキーワード（用法指示など）
+    // ※行全体で判定すると、薬の横に用法が書かれているだけで薬ごと消えてしまうため
+    const wordNoiseKeywords = [
+        "分１", "分２", "分３", "分４", "分５", "分６", "回分", "日分", "日目", "日毎", "日おき", "ヶ月", "残",
+        "痛む", "頭痛", "発熱", "疼痛", "不眠", "便秘", "頓服",
+        "食後", "食前", "食間", "眠前", "朝食", "夕食", "昼食", "就寝",
+        "時間", "間隔", "まで", "飲みきり", "適宜", "振って", "検認",
+        "眼に", "耳に", "鼻に"
+    ];
 
     lines.forEach(line => {
-        const trimmed = line.trim();
+        let trimmed = line.replace(/　/g, " ").trim();
         if (!trimmed) return;
-        // 簡易フィルタ
-        if(trimmed.includes("分１") || trimmed.includes("Rp") || trimmed.includes("Ｒｐ")) return; 
         
+        // 1. 行全体の構造や確実なノイズキーワードで弾く
+        if (/^Rp\s*[0-9]*$/i.test(trimmed)) return;
+        if (/[0-9]{4}\/[0-9]{1,2}\/[0-9]{1,2}/.test(trimmed)) return;
+        if (trimmed.includes("。") || trimmed.includes("、")) return;
+        if (trimmed.includes("して下さい") || trimmed.includes("してください") || trimmed.includes("との話")) return;
+        
+        if (lineNoiseKeywords.some(kw => trimmed.includes(kw))) return;
+        
+        // 2. 薬剤名の抽出
         const cleaned = cleanDrugName(line);
+        if (!cleaned || cleaned.length < 2) return; // 短すぎる文字は無視
+        
+        // 3. 抽出された単語(cleaned)自体が用法指示などのノイズであるかをチェック
+        const isNoise = wordNoiseKeywords.some(kw => cleaned.includes(kw));
+        const endsWithNoise = cleaned.endsWith("時") || cleaned.endsWith("まで") || cleaned.endsWith("なし") || cleaned.endsWith("あり") || cleaned.endsWith("回") || cleaned.endsWith("枚") || cleaned.endsWith("滴");
+        
+        if (isNoise || endsWithNoise) {
+            return; 
+        }
+        
+        // 4. マスタ判定
         const bestMatch = findMatchingDrug(line, cleaned);
         
         if (bestMatch) {
             // 外用剤の上書き判定
-            let isExt = ["点眼", "軟膏", "テープ", "貼付", "ローション", "坐剤", "クリーム"].some(kw => line.includes(kw) && !bestMatch.brand.includes(kw) && !bestMatch.gene.includes(kw));
+            let isExt = ["点眼", "軟膏", "テープ", "貼付", "ローション", "坐剤", "クリーム", "パップ", "外用", "スプレー", "エアロゾル", "吸入"].some(kw => line.includes(kw) && !bestMatch.brand.includes(kw) && !bestMatch.gene.includes(kw));
             if (isExt) {
-                results.push({ name: cleaned || trimmed, data: {...bestMatch, period: "-", reason: "外用剤のため影響少ない"} });
+                results.push({ name: cleaned, data: {...bestMatch, period: "-", reason: "外用剤のため影響少ない"} });
             } else {
-                results.push({ name: cleaned || trimmed, data: bestMatch });
+                results.push({ name: cleaned, data: bestMatch });
             }
         } else {
-            results.push({ name: cleaned || trimmed, data: null });
+            results.push({ name: cleaned, data: null });
         }
     });
     
@@ -1401,18 +1553,18 @@ function calculateStopDateStrict(period, sDateStr) {
 function renderResults(results, hasDate, sDateStr) {
     const tbody = document.querySelector("#resultTable tbody");
     const pBody = document.querySelector("#printResultTable tbody");
-    tbody.innerHTML = ""; pBody.innerHTML = "";
     
     if (results.length === 0) { 
-        tbody.innerHTML = '<tr><td colspan="6" class="text-center">有効なデータなし</td></tr>'; 
+        tbody.innerHTML = '<tr><td colspan="7" class="text-center">有効なデータなし</td></tr>'; 
+        pBody.innerHTML = '';
         return; 
     }
     
-    results.forEach(r => {
+    let screenHtml = "";
+    let printHtml = "";
+    
+    results.forEach((r, idx) => {
         const m = r.data;
-        const trS = document.createElement("tr");
-        const trP = document.createElement("tr");
-
         if(m) {
             let calcText = "-";
             let rowClass = "row-none";
@@ -1425,15 +1577,58 @@ function renderResults(results, hasDate, sDateStr) {
                 else if (m.period !== "-" && m.period !== "対象外") { rowClass = "row-alert"; calcText = m.period.includes("参照") ? "院内プロトコル(別紙)参照" : m.period; }
             }
             
-            trS.className = rowClass; trP.className = rowClass;
-            trS.innerHTML = `<td class="fw-bold">${r.name}</td><td class="small">${m.type}</td><td class="small">${m.period}</td><td class="fw-bold" style="${hasDate?'':'display:none;'}">${calcText}</td><td class="small">${m.reason}</td><td class="small text-center">${m.ref}</td>`;
-            trP.innerHTML = `<td class="fw-bold">${r.name}</td><td class="small">${m.type}</td><td class="small">${m.period}</td><td class="fw-bold" style="${hasDate?'':'display:none;'}">${calcText}</td><td class="small">${m.reason}</td><td class="small text-center">${m.ref}</td>`;
+            const trClass = rowClass;
+            const displayStyle = hasDate ? '' : 'display:none;';
+            
+            screenHtml += `<tr class="${trClass}" id="row_screen_${idx}">
+                <td class="fw-bold">${r.name}</td>
+                <td class="small">${m.type}</td>
+                <td class="small">${m.period}</td>
+                <td class="fw-bold editable-date" style="${displayStyle} background-color:#fffbea; cursor:text; border: 1px dashed #ffc107;" contenteditable="true" data-orig="${calcText}" oninput="document.getElementById('row_print_${idx}').querySelector('.print-date').innerHTML = this.innerHTML">${calcText}</td>
+                <td class="small">${m.reason}</td>
+                <td class="small text-center">${m.ref}</td>
+                <td class="text-center align-middle no-print">
+                    <button class="btn btn-sm btn-outline-secondary p-0 px-1 me-1" onclick="const ed = this.closest('tr').querySelector('.editable-date'); ed.innerHTML = ed.dataset.orig; document.getElementById('row_print_${idx}').querySelector('.print-date').innerHTML = ed.dataset.orig;" title="元に戻す">↺</button>
+                    <button class="btn btn-sm btn-outline-danger p-0 px-1" onclick="document.getElementById('row_screen_${idx}').remove(); const pRow = document.getElementById('row_print_${idx}'); if(pRow) pRow.remove();" title="この行を削除">✖</button>
+                </td>
+            </tr>`;
+            
+            printHtml += `<tr class="${trClass}" id="row_print_${idx}">
+                <td class="fw-bold">${r.name}</td>
+                <td class="small">${m.type}</td>
+                <td class="small">${m.period}</td>
+                <td class="fw-bold print-date" style="${displayStyle}">${calcText}</td>
+                <td class="small">${m.reason}</td>
+                <td class="small text-center">${m.ref}</td>
+            </tr>`;
+            
         } else {
-            const emptyHtml = `<td>${r.name}</td><td class="small text-muted">-</td><td class="small text-muted">指定なし</td><td class="small text-muted" style="${hasDate?'':'display:none;'}">-</td><td class="small text-muted">指定なし</td><td class="small text-muted">-</td>`;
-            trS.innerHTML = emptyHtml; trP.innerHTML = emptyHtml;
+            screenHtml += `<tr id="row_screen_${idx}">
+                <td>${r.name}</td>
+                <td class="small text-muted">-</td>
+                <td class="small text-muted">指定なし</td>
+                <td class="small text-muted editable-date" style="${hasDate?'':'display:none;'} background-color:#fffbea; cursor:text; border: 1px dashed #ffc107;" contenteditable="true" data-orig="-" oninput="document.getElementById('row_print_${idx}').querySelector('.print-date').innerHTML = this.innerHTML">-</td>
+                <td class="small text-muted">-</td>
+                <td class="text-center">-</td>
+                <td class="text-center align-middle no-print">
+                    <button class="btn btn-sm btn-outline-secondary p-0 px-1 me-1" onclick="const ed = this.closest('tr').querySelector('.editable-date'); ed.innerHTML = ed.dataset.orig; document.getElementById('row_print_${idx}').querySelector('.print-date').innerHTML = ed.dataset.orig;" title="元に戻す">↺</button>
+                    <button class="btn btn-sm btn-outline-danger p-0 px-1" onclick="document.getElementById('row_screen_${idx}').remove(); const pRow = document.getElementById('row_print_${idx}'); if(pRow) pRow.remove();" title="この行を削除">✖</button>
+                </td>
+            </tr>`;
+            
+            printHtml += `<tr id="row_print_${idx}">
+                <td>${r.name}</td>
+                <td class="small text-muted">-</td>
+                <td class="small text-muted">指定なし</td>
+                <td class="small text-muted print-date" style="${hasDate?'':'display:none;'}">-</td>
+                <td class="small text-muted">-</td>
+                <td class="text-center">-</td>
+            </tr>`;
         }
-        tbody.appendChild(trS); pBody.appendChild(trP);
     });
+    
+    tbody.innerHTML = screenHtml;
+    pBody.innerHTML = printHtml;
 }
 
 // =========================================================
@@ -1588,7 +1783,7 @@ function bulkAddMaster() {
 
 function checkPassword() {
     const pw = document.getElementById("adminPassword").value;
-    if(pw === "1234") {
+    if(pw === "713665") {
         document.getElementById("admin-login").style.display = "none";
         document.getElementById("admin-content").style.display = "block";
         renderEditors();
@@ -1598,7 +1793,7 @@ function checkPassword() {
 }
 
 function isSeparatorWord(remainStr) {
-    if(!remainStr) return false;
+    if(!remainStr) return true;
     const firstChar = remainStr.charAt(0);
     // 数字、記号、アルファベット判定
     if (/[0-9０-９]/.test(firstChar)) return true;
@@ -1607,7 +1802,7 @@ function isSeparatorWord(remainStr) {
     
     const sepWords = [
         "錠", "カプセル", "散", "顆粒", "細粒", "シロップ", "ドライシロップ", "液", "水性", "懸濁", "ワクチン",
-        "テープ", "パップ", "クリーム", "軟膏", "ゲル", "ローション", "坐剤", "坐薬",
+        "テープ", "パップ", "クリーム", "軟膏", "ゲル", "ローション", "坐剤", "坐薬", "スプレー", "エアロゾル", "ポンプ", "吸入", "外用", "内服",
         "点眼", "点耳", "点鼻", "注射", "注", "キット", "シリンジ", "バッグ", "ディスポ", "ポリアンプ",
         "配合", "徐放", "舌下", "無水物",
         "塩酸塩", "マレイン酸塩", "ナトリウム", "二ナトリウム", "カリウム", "カルシウム",
@@ -1620,6 +1815,11 @@ function isSeparatorWord(remainStr) {
 }
 
 function setupDragAndDrop() {
+    
+    // 画面外へのドロップでファイルが開いてしまうブラウザのデフォルト挙動を防止
+    window.addEventListener("dragover", function(e) { e.preventDefault(); }, false);
+    window.addEventListener("drop", function(e) { e.preventDefault(); }, false);
+
     const dropZone = document.getElementById('drop-zone');
     const fileInput = document.getElementById('csvFileInput');
     if(!dropZone) return;
@@ -1641,16 +1841,23 @@ function handleCSVFile(file) {
     const reader = new FileReader();
     reader.onload = function(e) { 
         let text = e.target.result;
-        // Shift_JISで読んで文字化け（）が出た場合、UTF-8で読み直す
+        // UTF-8で読んで文字化け（）が出た場合、Shift_JISで読み直す（Shift_JIS→UTF-8の誤読はが出やすいため、UTF-8を先に試すのが安全です）
         if(text.includes("")) {
             const r2 = new FileReader();
             r2.onload = function(e2) { processCSV(e2.target.result); };
-            r2.readAsText(file, 'UTF-8');
+            r2.readAsText(file, 'Shift_JIS');
         } else {
-            processCSV(text);
+            // もしUTF-8で読めても「名称」が含まれていない場合、念のためShift_JISで読み直すフォールバックを追加
+            if (!text.includes("名称")) {
+                const r3 = new FileReader();
+                r3.onload = function(e3) { processCSV(e3.target.result); };
+                r3.readAsText(file, 'Shift_JIS');
+            } else {
+                processCSV(text);
+            }
         }
     };
-    reader.readAsText(file, 'Shift_JIS'); // Excel用
+    reader.readAsText(file, 'UTF-8');
 }
 
 
@@ -2009,7 +2216,7 @@ function renderAdminTables() {
     if(rTBody) {
         let rHtml = "";
         // No sorting here anymore, the array order dictates the visual order
-        refDataArray.forEach((r, i) => {
+                refDataArray.forEach((r, i) => {
             rHtml += `<tr>
                 <td>${r.no}</td>
                 <td contenteditable="true" onblur="updateRefName(${i}, this.innerText)">${r.name}</td>
@@ -2020,6 +2227,7 @@ function renderAdminTables() {
                 </td>
             </tr>`;
         });
+        rTBody.innerHTML = rHtml;
     }
 }
 
@@ -2190,7 +2398,7 @@ function bulkAddMaster() {
 
 function checkPassword() {
     const pwd = document.getElementById('admin-password').value;
-    if (pwd === '1234') {
+    if (pwd === '713665') {
         document.querySelectorAll('.admin-sub-tab').forEach(el => el.style.display = 'block');
         const loginNav = document.getElementById('nav-admin-login');
         if (loginNav) loginNav.style.display = 'none';
